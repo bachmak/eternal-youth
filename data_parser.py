@@ -80,4 +80,5 @@ def batch_convert(input_dir: str, output_dir: str = "out"):
 
 
 if __name__ == "__main__":
-    batch_convert("data")
+    for subdir in ["mixed", "overcast", "sunny", "very-sunny"]:
+        batch_convert(f"data/{subdir}", f"out/{subdir}")
