@@ -1,10 +1,18 @@
 import json
-import csv
 import re
 from pathlib import Path
+from dataclasses import dataclass
 
 
-# JSON → CSV column mapping
+@dataclass
+class Sample:
+    time: str
+    PV: float
+    consumption: float
+    charge_power: float
+    discharge_power: float
+
+
 MAPPING = {
     "xAxis": "time",
     "productPower": "PV",
@@ -13,11 +21,13 @@ MAPPING = {
     "dischargePower": "discharge_power",
 }
 
-# Match filenames like: 28-11-2025.json
 FILENAME_PATTERN = re.compile(r"(?P<date>\d{4}-\d{2}-\d{2}).*\.json$")
 
 
-def convert_file(json_path: Path, out_dir: Path):
+def extract_json_data(
+        json_path: Path,
+        mapping: dict[str, str],
+) -> list[Sample]:
     with json_path.open("r", encoding="utf-8") as f:
         payload = json.load(f)
 
@@ -29,56 +39,62 @@ def convert_file(json_path: Path, out_dir: Path):
     extracted = {}
     lengths = set()
 
-    for json_key, csv_col in MAPPING.items():
+    for json_key, attr_name in mapping.items():
         values = data.get(json_key)
-
         if not isinstance(values, list):
-            raise TypeError(
-                f"{json_path.name}: expected list for '{json_key}', got {type(values)}"
-            )
+            raise TypeError(f"{json_path.name}: expected list for '{json_key}'")
 
-        extracted[csv_col] = values
+        extracted[attr_name] = values
         lengths.add(len(values))
 
     if len(lengths) != 1:
-        detail = {k: len(v) for k, v in extracted.items()}
-        raise ValueError(
-            f"{json_path.name}: array length mismatch: {detail}"
+        raise ValueError(f"{json_path.name}: array length mismatch")
+
+    n = lengths.pop()
+
+    rows = []
+    for i in range(n):
+        sample = Sample(
+            time=extracted["time"][i],
+            PV=extracted["PV"][i],
+            consumption=extracted["consumption"][i],
+            charge_power=extracted["charge_power"][i],
+            discharge_power=extracted["discharge_power"][i],
         )
+        rows.append(sample)
 
-    row_count = lengths.pop()
-
-    out_path = out_dir / json_path.with_suffix(".csv").name
-    fieldnames = list(extracted.keys())
-
-    with out_path.open("w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
-
-        for i in range(row_count):
-            writer.writerow({col: extracted[col][i] for col in fieldnames})
-
-    print(f"✔ {json_path.name} → {out_path.name} ({row_count} rows)")
+    return rows
 
 
-def batch_convert(input_dir: str, output_dir: str = "out"):
+def batch_collect(
+        input_dir: str,
+        mapping: dict[str, str] = MAPPING,
+        pattern: re.Pattern[str] = FILENAME_PATTERN,
+) -> list[Sample]:
     input_dir = Path(input_dir)
-    output_dir = Path(output_dir)
-    output_dir.mkdir(parents=True, exist_ok=True)
-
     json_files = [
         p for p in input_dir.iterdir()
-        if p.is_file() and FILENAME_PATTERN.fullmatch(p.name)
+        if p.is_file() and pattern.fullmatch(p.name)
     ]
 
     if not json_files:
-        print("No matching JSON files found.")
-        return
+        print(f"No JSON files found in: {input_dir}")
+        return []
+
+    all_rows = []
 
     for json_file in sorted(json_files):
-        convert_file(json_file, output_dir)
+        rows = extract_json_data(json_file, mapping)
+        all_rows.extend(rows)
+        print(f"Loaded {json_file.name}: {len(rows)} samples")
+
+    return all_rows
 
 
 if __name__ == "__main__":
-    for subdir in ["mixed", "overcast", "sunny", "very-sunny"]:
-        batch_convert(f"data/{subdir}", f"out/{subdir}")
+    data = batch_collect("data/days-range", MAPPING, FILENAME_PATTERN)
+
+    for s in data[:5]:
+        print(s)
+
+    print(f"\nTotal samples: {len(data)}")
