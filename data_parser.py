@@ -1,11 +1,11 @@
 import json
 import re
 from pathlib import Path
-from data_sample import DataSample
+import pandas as pd
 
 MAPPING = {
     "xAxis": "time",
-    "productPower": "PV",
+    "productPower": "pv",
     "usePower": "consumption",
     "chargePower": "charge_power",
     "dischargePower": "discharge_power",
@@ -14,10 +14,16 @@ MAPPING = {
 FILENAME_PATTERN = re.compile(r"(?P<date>\d{4}-\d{2}-\d{2}).*\.json$")
 
 
+def validate_df(df: pd.DataFrame) -> None:
+    assert df["time"].notna().all(), "NaT in 'time'"
+    assert (df["pv"] >= 0).all(), "Negative PV-Werte"
+    assert (df["consumption"] >= 0).all(), "Negative consumption-Werte"
+
+
 def extract_json_data(
         json_path: Path,
         mapping: dict[str, str],
-) -> list[DataSample]:
+) -> pd.DataFrame:
     with json_path.open("r", encoding="utf-8") as f:
         payload = json.load(f)
 
@@ -26,44 +32,39 @@ def extract_json_data(
 
     data = payload.get("data", {})
 
-    extracted = {}
-    lengths = set()
-
-    for json_key, attr_name in mapping.items():
-        values = data.get(json_key)
+    def ensure_list(key, values):
         if not isinstance(values, list):
-            raise TypeError(f"{json_path.name}: expected list for '{json_key}'")
+            raise TypeError(f"{json_path.name}: expected list for '{key}'")
+        return values
 
-        extracted[attr_name] = values
-        lengths.add(len(values))
+    extracted = {
+        col_name: ensure_list(json_key, data.get(json_key))
+        for json_key, col_name in mapping.items()
+    }
 
-    if len(lengths) != 1:
-        raise ValueError(f"{json_path.name}: array length mismatch")
+    df = pd.DataFrame(extracted)
 
-    rows = [
-        DataSample(
-            time=time,
-            pv=pv,
-            consumption=consumption,
-            charge_power=charge,
-            discharge_power=discharge,
-        ) for time, pv, consumption, charge, discharge in zip(
-            extracted["time"],
-            extracted["PV"],
-            extracted["consumption"],
-            extracted["charge_power"],
-            extracted["discharge_power"],
-        )
-    ]
+    df["time"] = pd.to_datetime(df["time"].str.replace(" DST", "", regex=False))
+    df["time"] = df["time"].dt.tz_localize(
+        "Europe/Berlin",
+        ambiguous='infer',
+        nonexistent='shift_forward',
+    )
 
-    return rows
+    float_columns = ["pv", "consumption", "charge_power", "discharge_power"]
+    for c in float_columns:
+        df[c] = df[c].astype(float)
+
+    validate_df(df)
+
+    return df
 
 
 def batch_collect(
         input_dir: str,
         mapping: dict[str, str] = MAPPING,
         pattern: re.Pattern[str] = FILENAME_PATTERN,
-) -> list[DataSample]:
+) -> pd.DataFrame:
     input_dir = Path(input_dir)
     json_files = [
         p for p in input_dir.iterdir()
@@ -72,22 +73,24 @@ def batch_collect(
 
     if not json_files:
         print(f"No JSON files found in: {input_dir}")
-        return []
+        return None
 
-    all_rows = []
+    dfs = []
 
     for json_file in sorted(json_files):
-        rows = extract_json_data(json_file, mapping)
-        all_rows.extend(rows)
-        print(f"Loaded {json_file.name}: {len(rows)} samples")
+        df = extract_json_data(json_file, mapping)
+        dfs.append(df)
+        print(f"Loaded {json_file.name}: {len(df)} samples")
 
-    return all_rows
+    result = pd.concat(dfs, ignore_index=True)
+    result = result.sort_values("time").reset_index(drop=True)
+
+    return result
 
 
 if __name__ == "__main__":
     data = batch_collect("data/days-range", MAPPING, FILENAME_PATTERN)
 
-    for s in data[:5]:
-        print(s)
+    print(data)
 
     print(f"\nTotal samples: {len(data)}")
