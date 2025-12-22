@@ -1,17 +1,7 @@
 import json
 import re
 from pathlib import Path
-from dataclasses import dataclass
-
-
-@dataclass
-class Sample:
-    time: str
-    PV: float
-    consumption: float
-    charge_power: float
-    discharge_power: float
-
+from data_sample import DataSample
 
 MAPPING = {
     "xAxis": "time",
@@ -27,7 +17,7 @@ FILENAME_PATTERN = re.compile(r"(?P<date>\d{4}-\d{2}-\d{2}).*\.json$")
 def extract_json_data(
         json_path: Path,
         mapping: dict[str, str],
-) -> list[Sample]:
+) -> list[DataSample]:
     with json_path.open("r", encoding="utf-8") as f:
         payload = json.load(f)
 
@@ -50,18 +40,21 @@ def extract_json_data(
     if len(lengths) != 1:
         raise ValueError(f"{json_path.name}: array length mismatch")
 
-    n = lengths.pop()
-
-    rows = []
-    for i in range(n):
-        sample = Sample(
-            time=extracted["time"][i],
-            PV=extracted["PV"][i],
-            consumption=extracted["consumption"][i],
-            charge_power=extracted["charge_power"][i],
-            discharge_power=extracted["discharge_power"][i],
+    rows = [
+        DataSample(
+            time=time,
+            pv=pv,
+            consumption=consumption,
+            charge_power=charge,
+            discharge_power=discharge,
+        ) for time, pv, consumption, charge, discharge in zip(
+            extracted["time"],
+            extracted["PV"],
+            extracted["consumption"],
+            extracted["charge_power"],
+            extracted["discharge_power"],
         )
-        rows.append(sample)
+    ]
 
     return rows
 
@@ -70,7 +63,7 @@ def batch_collect(
         input_dir: str,
         mapping: dict[str, str] = MAPPING,
         pattern: re.Pattern[str] = FILENAME_PATTERN,
-) -> list[Sample]:
+) -> list[DataSample]:
     input_dir = Path(input_dir)
     json_files = [
         p for p in input_dir.iterdir()

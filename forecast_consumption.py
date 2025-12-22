@@ -110,7 +110,7 @@ def visualize(history, realtime, prediction):
 
 
 def func(t):
-    freq = 0.00001
+    freq = 5
     return np.sin(2 * np.pi * freq * t)
 
 def main():
