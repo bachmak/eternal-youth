@@ -18,121 +18,110 @@ def log_err(msg):
 
 
 # ==========================================
-# 1. KONFIGURATION
+# 1. CONFIGURATION
 # ==========================================
-# FIX: BASE_PATH muss ausserhalb der Klasse stehen, damit List Comprehensions funktionieren
+# GLOBAL PATH: Adjust this to your local project folder
 BASE_PATH_GLOBAL = r"C:\Users\henni\PycharmProjects\eternal-youth\out"
 
 
 class Config:
-    # Wir definieren die 4 Szenarien mit den ECHTEN Dateien
-    SCENARIOS = {
-        "Szenario A: Sommer (Saturation)": {
-            "target": os.path.join(BASE_PATH_GLOBAL, "sunny", "2025-06-24.csv"),
-            "history": [os.path.join(BASE_PATH_GLOBAL, "sunny", f"2025-06-{day}.csv") for day in range(17, 24)]
-        },
-        "Szenario B: Frühling (Volatile Proxy)": {
-            "target": os.path.join(BASE_PATH_GLOBAL, "very-sunny", "2025-04-26.csv"),
-            "history": [
-                os.path.join(BASE_PATH_GLOBAL, "very-sunny", "2025-04-24.csv"),
-                os.path.join(BASE_PATH_GLOBAL, "very-sunny", "2025-04-25.csv")
-            ]
-        },
-        "Szenario C: Übergang (Transition)": {
-            "target": os.path.join(BASE_PATH_GLOBAL, "mixed", "2025-09-05.csv"),
-            "history": [
-                os.path.join(BASE_PATH_GLOBAL, "mixed", "2025-08-29.csv"),
-                os.path.join(BASE_PATH_GLOBAL, "mixed", "2025-08-30.csv"),
-                os.path.join(BASE_PATH_GLOBAL, "mixed", "2025-08-31.csv"),
-                os.path.join(BASE_PATH_GLOBAL, "mixed", "2025-09-01.csv"),
-                os.path.join(BASE_PATH_GLOBAL, "mixed", "2025-09-02.csv"),
-                os.path.join(BASE_PATH_GLOBAL, "mixed", "2025-09-03.csv"),
-                os.path.join(BASE_PATH_GLOBAL, "mixed", "2025-09-04.csv")
-            ]
-        },
-        "Szenario D: Winter (Dark/Dunkelflaute)": {
-            "target": os.path.join(BASE_PATH_GLOBAL, "overcast", "2025-11-15.csv"),
-            "history": [os.path.join(BASE_PATH_GLOBAL, "overcast", f"2025-11-{day:02d}.csv") for day in range(8, 15)]
-        }
-    }
+    # We define only the scenario we want to analyze
+    # Scenario C: Transition (September) - Realistic Load (~7.5 kWh) & Mixed Weather
+    SCENARIO_NAME = "Scenario: Transition (September)"
 
-    DT = 5.0 / 60.0  # 5 Minuten Schritte
+    TARGET_FILE = os.path.join(BASE_PATH_GLOBAL, "mixed", "2025-09-05.csv")
+
+    HISTORY_FILES = [
+        os.path.join(BASE_PATH_GLOBAL, "mixed", "2025-08-29.csv"),
+        os.path.join(BASE_PATH_GLOBAL, "mixed", "2025-08-30.csv"),
+        os.path.join(BASE_PATH_GLOBAL, "mixed", "2025-08-31.csv"),
+        os.path.join(BASE_PATH_GLOBAL, "mixed", "2025-09-01.csv"),
+        os.path.join(BASE_PATH_GLOBAL, "mixed", "2025-09-02.csv"),
+        os.path.join(BASE_PATH_GLOBAL, "mixed", "2025-09-03.csv"),
+        os.path.join(BASE_PATH_GLOBAL, "mixed", "2025-09-04.csv")
+    ]
+
+    # --- TECHNICAL PARAMETERS ---
+    DT = 5.0 / 60.0  # Time step: 5 Minutes
     STEPS_PER_DAY = int(24 / DT)
 
-    # System Limits
+    # Battery Hardware Limits (Huawei LUNA2000 10kWh)
     CAPACITY = 10.0  # kWh
     P_MAX = 5.0  # kW
-    ETA = 0.95  # Effizienz
+    ETA = 0.95  # Roundtrip Efficiency ~90%
+
+    # Hard Constraints (Safety / BMS)
     SOC_MIN_HARD = 0.05
     SOC_MAX_HARD = 1.00
-    SOC_START = 0.10
+    SOC_START = 0.10  # Initial SoC at 00:00
 
-    # Strategie
+    # --- MPC STRATEGY PARAMETERS ---
+    # Soft Constraints (Health Corridor 20-90%)
     SOC_MIN_SOFT = 0.20
-    PENALTY_LOW = 200.0
+    PENALTY_LOW = 200.0  # High penalty: Only dip below 20% if critical
     SOC_MAX_SOFT = 0.90
-    PENALTY_HIGH = 10.0
+    PENALTY_HIGH = 10.0  # Moderate penalty: Avoid >90% unless necessary
 
-    # Kosten
-    PRICE_BUY = 0.30
-    PRICE_SELL = 0.08
-    COST_WEAR = 0.02
-    COST_SOC_HOLDING = 0.01
-    VAL_TERMINAL = 0.15
+    # Cost Function Weights
+    PRICE_BUY = 0.30  # Grid Import Price
+    PRICE_SELL = 0.08  # Feed-in Tariff
+    COST_WEAR = 0.02  # Cyclic Aging Cost (per kWh throughput)
+    COST_SOC_HOLDING = 0.01  # Calendar Aging Cost ("Parking Fee")
+    VAL_TERMINAL = 0.15  # End-of-Horizon Value
 
 
 # ==========================================
-# 2. HELPER: DATEIEN LADEN
+# 2. HELPER: DATA LOADING
 # ==========================================
 def load_single_file(filename):
-    """Lädt eine einzelne CSV Datei und bereinigt sie"""
+    """Loads a single CSV file and standardizes column names."""
     if not os.path.exists(filename):
-        log_err(f"Datei fehlt: {filename}")
+        log_err(f"File missing: {filename}")
         return None
 
     try:
         df = pd.read_csv(filename, sep=None, engine='python')
         df.columns = [c.strip().lower() for c in df.columns]
+
+        # Rename German/inconsistent columns to standard English
         rename_map = {'pv': 'pv_kw', 'generation': 'pv_kw', 'erzeugung': 'pv_kw',
                       'load': 'load_kw', 'consumption': 'load_kw', 'verbrauch': 'load_kw'}
         df = df.rename(columns=rename_map)
+
         df = df.fillna(0)
         df['pv_kw'] = pd.to_numeric(df['pv_kw'], errors='coerce').fillna(0).abs()
         df['load_kw'] = pd.to_numeric(df['load_kw'], errors='coerce').fillna(0).abs()
         return df
     except Exception as e:
-        log_err(f"Fehler beim Lesen von {filename}: {e}")
+        log_err(f"Error reading {filename}: {e}")
         return None
 
 
 def learn_load_profile(history_files, cfg):
-    """
-    Liest die History-Dateien ein und erstellt ein Durchschnittsprofil (Training).
-    """
+    """Creates an average load profile from historical data (Training Step)."""
     valid_profiles = []
-
     for f in history_files:
         df = load_single_file(f)
         if df is not None and len(df) >= cfg.STEPS_PER_DAY:
-            # Nur den ersten Tag nehmen falls Datei länger ist
+            # Take only the first 24h
             profile = df['load_kw'].values[:cfg.STEPS_PER_DAY]
             valid_profiles.append(profile)
 
     if not valid_profiles:
-        log_err("Keine Trainingsdaten gefunden! Nutze flaches Profil als Fallback.")
+        log_err("No training data found! Using fallback flat profile.")
         return np.full(cfg.STEPS_PER_DAY, 0.5)
 
-        # Durchschnitt berechnen
-    avg_profile = np.mean(np.array(valid_profiles), axis=0)
-    log(f"Lastprofil gelernt aus {len(valid_profiles)} Tagen.")
-    return avg_profile
+        # Calculate mean across all training days
+    return np.mean(np.array(valid_profiles), axis=0)
 
 
 # ==========================================
-# 3. SIMULATIONEN
+# 3. SIMULATION LOGIC
 # ==========================================
 def simulate_greedy(df, cfg):
-    """Der dumme Regler"""
+    """
+    Simulates the standard manufacturer logic: 'Fill-First'.
+    """
     steps = len(df)
     soc = [cfg.SOC_START * cfg.CAPACITY]
     current_energy = soc[0]
@@ -142,11 +131,12 @@ def simulate_greedy(df, cfg):
     for i in range(steps):
         net = load_data[i] - pv_data[i]
         p = 0.0
-        if net < 0:  # Laden
+
+        if net < 0:  # Surplus -> Charge immediately
             p = min(-net, cfg.P_MAX)
             max_in = (cfg.CAPACITY - current_energy) / cfg.ETA / cfg.DT
             p = min(p, max_in)
-        elif net > 0:  # Entladen
+        elif net > 0:  # Deficit -> Discharge immediately
             p = -min(net, cfg.P_MAX)
             avail = current_energy - (cfg.CAPACITY * cfg.SOC_MIN_HARD)
             max_out = max(0, avail) * cfg.ETA / cfg.DT
@@ -157,6 +147,7 @@ def simulate_greedy(df, cfg):
         else:
             current_energy += p / cfg.ETA * cfg.DT
 
+        # Apply Hard Limits
         current_energy = max(cfg.CAPACITY * cfg.SOC_MIN_HARD, min(cfg.CAPACITY * cfg.SOC_MAX_HARD, current_energy))
         soc.append(current_energy)
 
@@ -164,40 +155,47 @@ def simulate_greedy(df, cfg):
 
 
 def simulate_mpc_realistic(df, forecast_load, cfg):
-    """Der schlaue Regler (Optimiert für LFP-Health)"""
+    """
+    Simulates the Health-Aware MPC using Convex Optimization.
+    """
     T = len(df)
     load_plan = forecast_load
     pv_plan = df['pv_kw'].values
 
-    p_c = cp.Variable(T, nonneg=True)
-    p_d = cp.Variable(T, nonneg=True)
-    e_b = cp.Variable(T + 1)
-    p_gr_in = cp.Variable(T, nonneg=True)
-    p_gr_out = cp.Variable(T, nonneg=True)
-    slack_low = cp.Variable(T, nonneg=True)
-    slack_high = cp.Variable(T, nonneg=True)
+    # CVXPY Variables
+    p_c = cp.Variable(T, nonneg=True)  # Charge Power
+    p_d = cp.Variable(T, nonneg=True)  # Discharge Power
+    e_b = cp.Variable(T + 1)  # Energy State
+    p_gr_in = cp.Variable(T, nonneg=True)  # Grid Import
+    p_gr_out = cp.Variable(T, nonneg=True)  # Grid Export
+    slack_low = cp.Variable(T, nonneg=True)  # Soft Constraint Violation (Low)
+    slack_high = cp.Variable(T, nonneg=True)  # Soft Constraint Violation (High)
 
     constraints = [e_b[0] == cfg.SOC_START * cfg.CAPACITY]
     cost_terms = []
 
     for k in range(T):
+        # 1. Energy Balance
         constraints.append(load_plan[k] + p_c[k] == pv_plan[k] + p_d[k] + p_gr_in[k] - p_gr_out[k])
+        # 2. Battery Dynamics
         constraints.append(e_b[k + 1] == e_b[k] + (p_c[k] * cfg.ETA - p_d[k] / cfg.ETA) * cfg.DT)
+        # 3. Hardware Limits
         constraints.append(p_c[k] <= cfg.P_MAX)
         constraints.append(p_d[k] <= cfg.P_MAX)
         constraints.append(e_b[k + 1] >= cfg.CAPACITY * cfg.SOC_MIN_HARD)
         constraints.append(e_b[k + 1] <= cfg.CAPACITY * cfg.SOC_MAX_HARD)
 
-        # Soft Constraints
+        # 4. Soft Constraints (Health Corridor)
         constraints.append(e_b[k + 1] >= (cfg.CAPACITY * cfg.SOC_MIN_SOFT) - slack_low[k])
         constraints.append(e_b[k + 1] <= (cfg.CAPACITY * cfg.SOC_MAX_SOFT) + slack_high[k])
 
-        # Kostenfunktion
-        cost = (p_gr_in[k] * cfg.PRICE_BUY - p_gr_out[k] * cfg.PRICE_SELL) * cfg.DT + \
-               cfg.COST_WEAR * (p_c[k] + p_d[k]) * cfg.DT + \
-               cfg.COST_SOC_HOLDING * e_b[k + 1] * cfg.DT + \
-               cfg.PENALTY_LOW * slack_low[k] + cfg.PENALTY_HIGH * slack_high[k]
-        cost_terms.append(cost)
+        # 5. Cost Function
+        cost_grid = (p_gr_in[k] * cfg.PRICE_BUY - p_gr_out[k] * cfg.PRICE_SELL) * cfg.DT
+        cost_wear = cfg.COST_WEAR * (p_c[k] + p_d[k]) * cfg.DT
+        cost_hold = cfg.COST_SOC_HOLDING * e_b[k + 1] * cfg.DT
+        cost_penalty = cfg.PENALTY_LOW * slack_low[k] + cfg.PENALTY_HIGH * slack_high[k]
+
+        cost_terms.append(cost_grid + cost_wear + cost_hold + cost_penalty)
 
     cost_terms.append(-cfg.VAL_TERMINAL * e_b[T])
 
@@ -213,61 +211,92 @@ def simulate_mpc_realistic(df, forecast_load, cfg):
 
 
 # ==========================================
-# 4. MAIN LOOP ÜBER ALLE 4 SZENARIEN
+# 4. MAIN EXECUTION & PLOTTING (SINGLE FOCUS)
 # ==========================================
 if __name__ == "__main__":
-    log("=== STARTING 4-SCENARIO VALIDATION ===")
+    log("=== STARTING SINGLE SCENARIO SIMULATION (ENGLISH) ===")
     cfg = Config()
 
-    # 2x2 Matrix Plot
-    fig, axes = plt.subplots(2, 2, figsize=(18, 10))
-    axes = axes.flatten()
+    log(f"Loading data for: {cfg.SCENARIO_NAME}")
 
-    for i, (name, data_paths) in enumerate(cfg.SCENARIOS.items()):
-        log(f"Simuliere: {name}")
+    # 1. Learn & Load
+    avg_profile = learn_load_profile(cfg.HISTORY_FILES, cfg)
+    df_target = load_single_file(cfg.TARGET_FILE)
 
-        # 1. Training (Lastprofil lernen)
-        avg_profile = learn_load_profile(data_paths["history"], cfg)
+    if df_target is None:
+        log_err("Target file could not be loaded. Exiting.")
+        sys.exit(1)
 
-        # 2. Target laden
-        df_target = load_single_file(data_paths["target"])
-        if df_target is None:
-            continue
+    # Cut to 24h if longer
+    if len(df_target) > cfg.STEPS_PER_DAY:
+        df_target = df_target.iloc[:cfg.STEPS_PER_DAY]
 
-        # Kürzen auf 24h
-        if len(df_target) > cfg.STEPS_PER_DAY:
-            df_target = df_target.iloc[:cfg.STEPS_PER_DAY]
+    # Calculate Totals
+    daily_pv_kwh = df_target['pv_kw'].sum() * cfg.DT
+    daily_load_kwh = df_target['load_kw'].sum() * cfg.DT
 
-        # 3. Simulationen
-        soc_greedy = simulate_greedy(df_target, cfg)
-        soc_mpc = simulate_mpc_realistic(df_target, avg_profile, cfg)
+    log(f"Daily Totals -> PV: {daily_pv_kwh:.2f} kWh | Load: {daily_load_kwh:.2f} kWh")
 
-        if soc_mpc is None:
-            log_err(f"MPC fehlgeschlagen bei {name}")
-            soc_mpc = np.zeros(len(df_target))
+    # 2. Run Simulations
+    soc_greedy = simulate_greedy(df_target, cfg)
+    soc_mpc = simulate_mpc_realistic(df_target, avg_profile, cfg)
 
-        # 4. Plotten
-        ax = axes[i]
-        time_axis = np.linspace(0, 24, len(soc_greedy))
-        soc_g_perc = soc_greedy / cfg.CAPACITY * 100
-        soc_m_perc = soc_mpc / cfg.CAPACITY * 100
+    if soc_mpc is None:
+        log_err("MPC Optimization failed.")
+        sys.exit(1)
 
-        # Zonen Visualisierung
-        ax.axhspan(0, 5, color='black', alpha=0.3)  # Hard
-        ax.axhspan(90, 100, color='orange', alpha=0.15)  # Stress
-        ax.axhspan(5, 20, color='red', alpha=0.1)  # Soft Low
+    # 3. Data Smoothing (Moving Average)
+    window_size = 6  # 30 Minutes window
+    pv_smooth = df_target['pv_kw'].rolling(window=window_size, center=True, min_periods=1).mean()
+    load_smooth = df_target['load_kw'].rolling(window=window_size, center=True, min_periods=1).mean()
 
-        ax.plot(time_axis, soc_g_perc, color='red', linestyle='--', alpha=0.6, label='Standard (Greedy)')
-        ax.plot(time_axis, soc_m_perc, color='green', linewidth=2.5, label='MPC (Healthy)')
+    # 4. Plotting (Big Single Plot)
+    fig, ax1 = plt.subplots(figsize=(16, 9))
+    ax2 = ax1.twinx()  # Secondary axis for Power
 
-        ax.set_title(name, fontsize=11, fontweight='bold')
-        ax.set_ylim(0, 105)
-        ax.set_ylabel('SoC (%)')
-        ax.grid(True, alpha=0.3)
+    time_axis = np.linspace(0, 24, len(soc_greedy))
 
-        if i == 0: ax.legend(loc='lower center', ncol=2)
+    # Background: Power (Smoothed)
+    ln1 = ax2.fill_between(time_axis, pv_smooth, color='#FDB813', alpha=0.3, label='PV Generation (Smoothed)')
+    ln2 = ax2.plot(time_axis, load_smooth, color='#005293', alpha=0.6, linewidth=2, label='Domestic Load (Smoothed)')
+
+    # Foreground: SoC
+    soc_g_perc = soc_greedy / cfg.CAPACITY * 100
+    soc_m_perc = soc_mpc / cfg.CAPACITY * 100
+
+    ln3 = ax1.plot(time_axis, soc_g_perc, color='#E30613', linestyle='--', alpha=0.9, linewidth=3,
+                   label='Standard Logic (Greedy)')
+    ln4 = ax1.plot(time_axis, soc_m_perc, color='#009640', linewidth=4, label='Health-Aware MPC')
+
+    # Zones
+    ax1.axhspan(0, 5, color='black', alpha=0.2)
+    ax1.axhspan(90, 100, color='orange', alpha=0.15)
+    ax1.axhspan(5, 20, color='red', alpha=0.08)
+
+    # Labels & Titles
+    title_text = f"Performance Analysis: {cfg.SCENARIO_NAME}\n(Total PV: {daily_pv_kwh:.1f} kWh | Total Load: {daily_load_kwh:.1f} kWh)"
+    ax1.set_title(title_text, fontsize=16, fontweight='bold', pad=20)
+
+    ax1.set_ylabel('State of Charge (%)', fontsize=14)
+    ax1.set_xlabel('Time of Day (h)', fontsize=14)
+    ax1.set_ylim(0, 105)
+    ax1.tick_params(axis='both', labelsize=12)
+    ax1.grid(True, alpha=0.3)
+
+    # Scale right axis dynamically (min 6 kW for visibility)
+    max_power = max(6.0, pv_smooth.max() * 1.1)
+    ax2.set_ylabel('Power (kW)', fontsize=14)
+    ax2.set_ylim(0, max_power)
+    ax2.tick_params(axis='both', labelsize=12)
+
+    # Unified Legend (bottom center)
+    lines = [ln1, ln2[0], ln3[0], ln4[0]]
+    labels = [l.get_label() for l in lines]
+    fig.legend(lines, labels, loc='lower center', ncol=4, bbox_to_anchor=(0.5, 0.02),
+               fancybox=True, shadow=True, fontsize=14)
 
     plt.tight_layout()
-    plt.savefig("Validierung_4_Szenarien_Final.png", dpi=300)
+    plt.subplots_adjust(bottom=0.12)  # Reserve space for legend
+    plt.savefig("Analysis_Scenario_Transition_English.png", dpi=300)
     plt.show()
-    log("Fertig.")
+    log("Plot created successfully.")
