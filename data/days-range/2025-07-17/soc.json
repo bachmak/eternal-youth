@@ -1,0 +1,2605 @@
+{
+    "buildCode": "2",
+    "data": {
+        "30007": {
+            "pmDataList": [
+                {
+                    "counterId": 30007,
+                    "counterValue": 75.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752703200,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 75.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752703500,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 74.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752703800,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 74.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752704100,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 73.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752704400,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 73.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752704700,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 73.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752705000,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 72.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752705300,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 72.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752705600,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 72.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752705900,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 72.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752706200,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 72.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752706500,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 71.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752706800,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 71.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752707100,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 71.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752707400,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 71.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752707700,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 70.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752708000,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 70.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752708300,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 70.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752708600,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 69.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752708900,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 69.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752709200,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 69.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752709500,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 69.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752709800,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 68.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752710100,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 68.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752710400,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 68.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752710700,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 68.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752711000,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 67.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752711300,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 67.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752711600,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 67.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752711900,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 66.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752712200,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 66.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752712500,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 66.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752712800,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 66.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752713100,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 65.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752713400,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 65.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752713700,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 64.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752714000,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 64.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752714300,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 63.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752714600,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 63.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752714900,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 63.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752715200,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 62.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752715500,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 62.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752715800,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 62.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752716100,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 61.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752716400,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 61.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752716700,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 61.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752717000,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 61.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752717300,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 60.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752717600,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 60.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752717900,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 60.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752718200,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 59.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752718500,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 59.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752718800,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 59.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752719100,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 59.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752719400,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 58.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752719700,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 58.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752720000,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 58.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752720300,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 58.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752720600,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 57.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752720900,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 57.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752721200,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 57.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752721500,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 57.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752721800,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 57.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752722100,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 56.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752722400,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 56.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752722700,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 56.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752723000,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 56.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752723300,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 56.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752723600,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 55.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752723900,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 55.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752724200,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 55.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752724500,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 55.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752724800,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 54.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752725100,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 54.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752725400,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 54.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752725700,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 54.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752726000,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 54.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752726300,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 54.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752726600,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 54.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752726900,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 54.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752727200,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 54.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752727500,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 53.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752727800,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 53.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752728100,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 53.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752728400,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 53.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752728700,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 53.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752729000,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 54.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752729300,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 54.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752729600,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 55.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752729900,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 56.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752730200,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 56.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752730500,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 56.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752730800,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 56.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752731100,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 56.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752731400,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 56.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752731700,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 57.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752732000,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 57.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752732300,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 57.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752732600,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 57.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752732900,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 58.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752733200,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 59.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752733500,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 59.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752733800,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 60.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752734100,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 61.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752734400,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 63.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752734700,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 65.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752735000,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 64.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752735300,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 64.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752735600,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 66.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752735900,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 70.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752736200,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 73.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752736500,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 74.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752736800,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 75.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752737100,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 75.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752737400,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 76.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752737700,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 77.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752738000,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 78.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752738300,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 78.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752738600,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 79.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752738900,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 81.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752739200,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 84.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752739500,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 86.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752739800,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 88.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752740100,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 90.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752740400,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 93.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752740700,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 95.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752741000,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 96.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752741300,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752741600,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752741900,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752742200,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752742500,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752742800,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752743100,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752743400,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752743700,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752744000,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752744300,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752744600,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752744900,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752745200,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752745500,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752745800,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752746100,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752746400,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752746700,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752747000,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752747300,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752747600,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752747900,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752748200,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752748500,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752748800,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752749100,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752749400,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752749700,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752750000,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752750300,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752750600,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752750900,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752751200,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752751500,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752751800,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752752100,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752752400,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752752700,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752753000,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752753300,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752753600,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752753900,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752754200,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752754500,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752754800,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752755100,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752755400,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752755700,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752756000,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752756300,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752756600,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752756900,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752757200,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752757500,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752757800,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752758100,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752758400,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752758700,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752759000,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752759300,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752759600,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752759900,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752760200,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752760500,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752760800,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752761100,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752761400,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752761700,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752762000,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752762300,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 99.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752762600,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 99.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752762900,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752763200,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752763500,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752763800,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 99.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752764100,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752764400,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752764700,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752765000,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752765300,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752765600,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752765900,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752766200,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752766500,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752766800,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752767100,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752767400,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752767700,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752768000,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752768300,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752768600,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752768900,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752769200,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 99.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752769500,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 98.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752769800,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 99.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752770100,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752770400,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752770700,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752771000,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752771300,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752771600,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752771900,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752772200,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752772500,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752772800,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752773100,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752773400,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752773700,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752774000,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752774300,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752774600,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752774900,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752775200,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752775500,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 100.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752775800,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 99.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752776100,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 99.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752776400,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 99.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752776700,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 99.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752777000,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 98.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752777300,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 98.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752777600,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 98.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752777900,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 98.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752778200,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 96.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752778500,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 94.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752778800,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 92.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752779100,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 90.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752779400,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 89.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752779700,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 89.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752780000,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 88.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752780300,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 88.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752780600,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 87.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752780900,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 86.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752781200,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 86.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752781500,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 85.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752781800,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 85.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752782100,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 84.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752782400,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 84.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752782700,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 83.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752783000,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 83.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752783300,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 83.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752783600,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 82.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752783900,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 81.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752784200,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 81.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752784500,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 81.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752784800,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 80.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752785100,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 80.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752785400,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 79.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752785700,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 79.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752786000,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 79.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752786300,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 78.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752786600,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 78.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752786900,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 78.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752787200,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 77.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752787500,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 77.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752787800,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 77.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752788100,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 76.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752788400,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 76.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752788700,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 76.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752789000,
+                    "timeZoneOffset": 60
+                },
+                {
+                    "counterId": 30007,
+                    "counterValue": 75.0,
+                    "dnId": 118748818,
+                    "dstOffset": 60,
+                    "period": 300,
+                    "startTime": 1752789300,
+                    "timeZoneOffset": 60
+                }
+            ],
+            "total": 288
+        }
+    },
+    "failCode": 0,
+    "params": [],
+    "success": true
+}
