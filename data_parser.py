@@ -7,40 +7,47 @@ MAPPING = {
     "xAxis": "time",
     "productPower": "pv",
     "usePower": "consumption",
-    "chargePower": "charge_power",
-    "dischargePower": "discharge_power",
 }
 
-FILENAME_PATTERN = re.compile(r"(?P<date>\d{4}-\d{2}-\d{2}).*\.json$")
+DAY_DIR_NAME_PATTERN = re.compile(r"(?P<date>\d{4}-\d{2}-\d{2})")
 
 
 def validate_df(df: pd.DataFrame) -> None:
     assert df["time"].notna().all(), "NaT in 'time'"
-    assert (df["pv"] >= 0).all(), "Negative PV-Werte"
-    assert (df["consumption"] >= 0).all(), "Negative consumption-Werte"
+    assert (df["pv"] >= 0).all(), "negative PV"
+    assert (df["consumption"] >= 0).all(), "negative consumption"
+    assert (df["soc"] >= 0).all(), "negative soc"
+    assert (df["soc"] <= 100.001).all(), "soc greater than 100"
 
 
 def extract_json_data(
-        json_path: Path,
+        day_path: Path,
         mapping: dict[str, str],
 ) -> pd.DataFrame:
-    with json_path.open("r", encoding="utf-8") as f:
-        payload = json.load(f)
+    overview_path = day_path / "overview.json"
+    soc_path = day_path / "soc.json"
 
-    if not payload.get("success"):
-        raise ValueError(f"{json_path.name}: JSON indicates success=false")
+    with overview_path.open("r", encoding="utf-8") as f:
+        overview_json = json.load(f)
 
-    data = payload.get("data", {})
+    with soc_path.open("r", encoding="utf-8") as f:
+        soc_json = json.load(f)
 
-    def ensure_list(key, values):
-        if not isinstance(values, list):
-            raise TypeError(f"{json_path.name}: expected list for '{key}'")
-        return values
+    overview_data = overview_json.get("data", {})
 
     extracted = {
-        col_name: ensure_list(json_key, data.get(json_key))
+        col_name: overview_data.get(json_key)
         for json_key, col_name in mapping.items()
     }
+
+    soc_data = (
+        soc_json
+        .get("data", {})
+        .get("30007", {})
+        .get("pmDataList", [])
+    )
+
+    extracted["soc"] = [item["counterValue"] for item in soc_data]
 
     df = pd.DataFrame(extracted)
 
@@ -51,7 +58,7 @@ def extract_json_data(
         nonexistent='shift_forward',
     )
 
-    float_columns = ["pv", "consumption", "charge_power", "discharge_power"]
+    float_columns = ["pv", "consumption", "soc"]
     for c in float_columns:
         df[c] = df[c].astype(float)
 
@@ -63,24 +70,24 @@ def extract_json_data(
 def batch_collect(
         input_dir: str,
         mapping: dict[str, str] = MAPPING,
-        pattern: re.Pattern[str] = FILENAME_PATTERN,
+        pattern: re.Pattern[str] = DAY_DIR_NAME_PATTERN,
 ) -> pd.DataFrame:
     input_dir = Path(input_dir)
-    json_files = [
+    days = [
         p for p in input_dir.iterdir()
-        if p.is_file() and pattern.fullmatch(p.name)
+        if p.is_dir() and pattern.fullmatch(p.name)
     ]
 
-    if not json_files:
+    if not days:
         print(f"No JSON files found in: {input_dir}")
         return None
 
     dfs = []
 
-    for json_file in sorted(json_files):
-        df = extract_json_data(json_file, mapping)
+    for day in sorted(days):
+        df = extract_json_data(day, mapping)
         dfs.append(df)
-        print(f"Loaded {json_file.name}: {len(df)} samples")
+        print(f"Loaded {day}: {len(df)} samples")
 
     result = pd.concat(dfs, ignore_index=True)
     result = result.sort_values("time").reset_index(drop=True)
@@ -88,9 +95,12 @@ def batch_collect(
     return result
 
 
-if __name__ == "__main__":
-    data = batch_collect("data/days-range", MAPPING, FILENAME_PATTERN)
+def main():
+    data = batch_collect("data/days-range", MAPPING, DAY_DIR_NAME_PATTERN)
 
     print(data)
 
     print(f"\nTotal samples: {len(data)}")
+
+if __name__ == "__main__":
+    main()
