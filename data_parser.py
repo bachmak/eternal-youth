@@ -6,7 +6,7 @@ import pandas as pd
 MAPPING = {
     "xAxis": "time",
     "productPower": "pv",
-    "usePower": "consumption",
+    "usePower": "pv_consumption",
 }
 
 DAY_DIR_NAME_PATTERN = re.compile(r"(?P<date>\d{4}-\d{2}-\d{2})")
@@ -15,7 +15,7 @@ DAY_DIR_NAME_PATTERN = re.compile(r"(?P<date>\d{4}-\d{2}-\d{2})")
 def validate_df(df: pd.DataFrame) -> None:
     assert df["time"].notna().all(), "NaT in 'time'"
     assert (df["pv"] >= 0).all(), "negative PV"
-    assert (df["consumption"] >= 0).all(), "negative consumption"
+    assert (df["pv_consumption"] >= 0).all(), "negative pv_consumption"
     assert (df["soc"] >= 0).all(), "negative soc"
     assert (df["soc"] <= 100.001).all(), "soc greater than 100"
 
@@ -40,6 +40,13 @@ def extract_json_data(
         for json_key, col_name in mapping.items()
     }
 
+    length = len(extracted["time"])
+    used_power_pro_sample = float(overview_data["totalUsePower"]) / length
+
+    extracted["avg_used_power"] = [
+        used_power_pro_sample for _ in range(0, length)
+    ]
+
     soc_data = (
         soc_json
         .get("data", {})
@@ -58,7 +65,7 @@ def extract_json_data(
         nonexistent='shift_forward',
     )
 
-    float_columns = ["pv", "consumption", "soc"]
+    float_columns = ["pv", "pv_consumption", "soc"]
     for c in float_columns:
         df[c] = df[c].astype(float)
 
