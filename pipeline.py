@@ -4,6 +4,7 @@ import numpy as np
 import plotly.express as px
 import cvxpy as cp
 
+from load_forecast_profile import predict_load_horizon
 from data_parser import batch_collect
 
 
@@ -52,7 +53,6 @@ def get_table(df_cache, data_folder):
     df.to_csv(df_cache, index=False)
     return df
 
-
 def predict_values(
         df,
         curr_idx,
@@ -60,17 +60,15 @@ def predict_values(
         history_size,
         horizon_size,
 ):
-    # TODO: improve prediction quality
-    start_idx = max(0, curr_idx - history_size)
-    history = df[column].iloc[start_idx:curr_idx]
-
-    if len(history) == 0:
-        mean_value = 0.0
-    else:
-        mean_value = history.mean()
-
-    prediction = np.full(horizon_size, mean_value)
-    return prediction
+    return predict_load_horizon(
+        df=df,
+        curr_idx=int(curr_idx),
+        horizon_size=int(horizon_size),
+        history_size=int(history_size),
+        load_col="consumption",
+        pv_col="pv",
+        mode="auto",
+    )
 
 
 def simulate_mpc(pv_forecast, consumption_forecast, curr_soc, cfg):
