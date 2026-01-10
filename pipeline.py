@@ -156,17 +156,55 @@ def run_single_mpc_step(df, idx, cfg):
     )
 
     pv_forecast = df["pv"][idx:idx + cfg.HORIZON_SAMPLES].to_numpy()
-    curr_soc = df["soc_mpc"].iloc[idx]
+    soc = df["soc_mpc"][idx]
 
-    soc = simulate_mpc(pv_forecast, consumption_prediction, curr_soc, cfg)
-    df.at[idx+1, "soc_mpc"] = soc
+    charge_power = simulate_mpc(
+        pv_forecast,
+        consumption_prediction,
+        soc,
+        cfg
+    )
+
+    pv = df["pv"][idx]
+    consumption = df["consumption"][idx]
+
+    discharge_power = max(consumption - pv + charge_power, 0)
+    import_power = max(consumption - pv + charge_power - discharge_power, 0)
+    export_power = max(pv - charge_power - consumption, 0)
+
+    next_soc = (
+        soc +
+        (charge_power * cfg.ETA - discharge_power / cfg.ETA)
+        * cfg.DT / cfg.CAPACITY
+    )
+
+    if idx + 1 >= len(df):
+        return
+
+    ts_next = df.index[idx + 1]
+
+    df.at[ts_next, "soc_mpc"] = next_soc
+    df.at[ts_next, "pv_consumption_mpc"] = pv - export_power
+    df.at[ts_next, "export_mpc"] = export_power
+    df.at[ts_next, "import_mpc"] = import_power
+    df.at[ts_next, "charge_mpc"] = charge_power
+    df.at[ts_next, "discharge_mpc"] = discharge_power
 
 
 def main():
     df = get_table("out/df.csv", "data/days-range")
     cfg = Config()
 
-    df["soc_mpc"] = df["soc"].copy()
+    for column in [
+        "soc",
+        "pv_consumption",
+        "export",
+        "import",
+        "charge",
+        "discharge",
+    ]:
+        df[f"{column}_mpc"] = df[column].copy()
+
 
     for idx in range(cfg.HISTORY_SAMPLES, len(df)):
         run_single_mpc_step(df, idx, cfg)
@@ -175,15 +213,22 @@ def main():
         df,
         x="time",
         y=[
-            "soc",
-            "soc_mpc",
             "pv",
             "consumption",
+
+            "soc",
             "pv_consumption",
             "export",
             "import",
             "charge",
             "discharge",
+
+            "soc_mpc",
+            "pv_consumption_mpc",
+            "export_mpc",
+            "import_mpc",
+            "charge_mpc",
+            "discharge_mpc",
         ],
         title="test visualisation",
     )
