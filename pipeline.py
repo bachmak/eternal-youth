@@ -38,6 +38,17 @@ def get_table(df_cache, data_folder):
 
     df = batch_collect(data_folder)
     df["soc"] = df["soc"] / 100.0
+
+    df["import"] = (
+        df["consumption"] -
+        df["pv_consumption"] + df["charge"] -
+        df["discharge"]
+    ).clip(lower=0)
+
+    df["export"] = (
+        df["pv"] - df["pv_consumption"]
+    ).clip(lower=0)
+
     df.to_csv(df_cache, index=False)
     return df
 
@@ -165,7 +176,17 @@ def main():
     fig = px.line(
         df,
         x="time",
-        y=["soc", "soc_mpc", "pv", "consumption"],
+        y=[
+            "soc",
+            "soc_mpc",
+            "pv",
+            "consumption",
+            "pv_consumption",
+            "export",
+            "import",
+            "charge",
+            "discharge",
+        ],
         title="test visualisation",
     )
 
