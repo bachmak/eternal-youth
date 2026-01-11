@@ -49,6 +49,14 @@ class MPCOptimizer:
         self.problem = cp.Problem(cp.Minimize(cost_terms), self.constraints)
 
     def solve(self, pv_forecast, consumption_forecast, curr_soc):
+        epsilon = 1e-4
+
+        if curr_soc < self.cfg.SOC_MIN_HARD + epsilon:
+            curr_soc = self.cfg.SOC_MIN_HARD + epsilon
+
+        if curr_soc > self.cfg.SOC_MAX_HARD - epsilon:
+            curr_soc = self.cfg.SOC_MAX_HARD - epsilon
+
         self.param_pv.value = np.array(pv_forecast)
         self.param_load.value = np.array(consumption_forecast)
         self.param_soc_start.value = np.atleast_1d(curr_soc)
@@ -58,15 +66,14 @@ class MPCOptimizer:
                 solver=cp.OSQP,
                 verbose=False,
                 warm_start=True,
-                max_iter=20000,
+                max_iter=40000,
                 eps_abs=1e-3,
                 eps_rel=1e-3
             )
         except cp.SolverError:
             pass
 
-        # 4. Fallback prüfen
-        if self.problem.status not in ["optimal"]:
+        if self.problem.status not in ["optimal", "optimal_inaccurate"]:
             raise Exception(f"Problem {self.problem.status} is not optimal")
 
         return (
