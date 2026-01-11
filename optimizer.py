@@ -38,9 +38,11 @@ class MPCOptimizer:
         ]
 
         cost_terms = (
-                cfg.PRICE_BUY * cp.sum(self.p_gr_im)
-                - cfg.PRICE_SELL * cp.sum(self.p_gr_ex)
-                + cfg.COST_WEAR * cp.sum(self.p_ch + self.p_dis)
+                (
+                        cfg.PRICE_BUY * cp.sum(self.p_gr_im)
+                        - cfg.PRICE_SELL * cp.sum(self.p_gr_ex)
+                        + cfg.COST_WEAR * cp.sum(self.p_ch + self.p_dis)
+                ) * cfg.DT
                 + cfg.COST_SOC_HOLDING * cp.sum_squares(self.soc - cfg.SOC_REF)
         )
 
