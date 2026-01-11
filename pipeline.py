@@ -14,23 +14,20 @@ class Config:
     HORIZON_SAMPLES = 288  # 1 day
 
     CAPACITY = 10.0  # kWh
-    P_MAX = 5.0  # kW
-    ETA = 0.95  # efficiency
+    P_CH_MAX = 5.0  # kW
+    P_DIS_MAX = 5.0  # kW
+    ETA_CH = 0.95  # efficiency
+    ETA_DIS = 0.95  # efficiency
 
     SOC_MIN_HARD = 0.05
     SOC_MAX_HARD = 1.00
-
-    SOC_MIN_SOFT = 0.20
-    PENALTY_LOW = 200.0  # High penalty: Only dip below 20% if critical
-    SOC_MAX_SOFT = 0.90
-    PENALTY_HIGH = 10.0  # Moderate penalty: Avoid >90% unless necessary
+    SOC_REF = 0.5
 
     # Cost Function Weights
     PRICE_BUY = 0.30  # Grid Import Price
     PRICE_SELL = 0.08  # Feed-in Tariff
     COST_WEAR = 0.02  # Cyclic Aging Cost (per kWh throughput)
     COST_SOC_HOLDING = 0.01  # Calendar Aging Cost ("Parking Fee")
-    VAL_TERMINAL = 0.15  # End-of-Horizon Value
 
 
 def get_table(df_cache, data_folder):
@@ -41,17 +38,18 @@ def get_table(df_cache, data_folder):
     df["soc"] = df["soc"] / 100.0
 
     df["import"] = (
-        df["consumption"] -
-        df["pv_consumption"] + df["charge"] -
-        df["discharge"]
+            df["consumption"] -
+            df["pv_consumption"] + df["charge"] -
+            df["discharge"]
     ).clip(lower=0)
 
     df["export"] = (
-        df["pv"] - df["pv_consumption"]
+            df["pv"] - df["pv_consumption"]
     ).clip(lower=0)
 
     df.to_csv(df_cache, index=False)
     return df
+
 
 def predict_values(
         df,
@@ -71,79 +69,72 @@ def predict_values(
     )
 
 
-def simulate_mpc(pv_forecast, consumption_forecast, curr_soc, cfg):
+
+def simulate_mpc(
+        pv_forecast,
+        consumption_forecast,
+        curr_soc,
+        cfg,
+):
     assert len(pv_forecast) == len(consumption_forecast)
 
-    horizon = len(pv_forecast)
+    n = len(pv_forecast)
 
-    # charge power
-    p_c = cp.Variable(horizon, nonneg=True)
+    pv = np.array(pv_forecast)
+    load = np.array(consumption_forecast)
 
-    # discharge power
-    p_d = cp.Variable(horizon, nonneg=True)
+    p_ch = cp.Variable(n, nonneg=True)
+    p_dis = cp.Variable(n, nonneg=True)
+    p_gr_im = cp.Variable(n, nonneg=True)
+    p_gr_ex = cp.Variable(n, nonneg=True)
 
-    # energy state
-    e_b = cp.Variable(horizon + 1)
+    soc = cp.Variable(n + 1)
 
-    # grid import
-    p_gr_in = cp.Variable(horizon, nonneg=True)
+    constraints = [
+        soc[0] == curr_soc,
+        soc >= cfg.SOC_MIN_HARD,
+        soc <= cfg.SOC_MAX_HARD,
+        p_ch <= cfg.P_CH_MAX,
+        p_dis <= cfg.P_DIS_MAX,
+    ]
 
-    # grid export
-    p_gr_out = cp.Variable(horizon, nonneg=True)
-
-    # soft constraint violation (low)
-    slack_low = cp.Variable(horizon, nonneg=True)
-
-    # soft constraint violation (high)
-    slack_high = cp.Variable(horizon, nonneg=True)
-
-    constraints = [e_b[0] == curr_soc * cfg.CAPACITY]
-    cost_terms = []
-
-    for k in range(horizon):
-        # energy balance
+    for k in range(n):
         constraints.append(
-            consumption_forecast[k] + p_c[k] ==
-            pv_forecast[k] + p_d[k] + p_gr_in[k] - p_gr_out[k]
+            soc[k + 1] == soc[k] +
+            (p_ch[k] * cfg.ETA_CH - p_dis[k] / cfg.ETA_DIS) *
+            cfg.DT / cfg.CAPACITY
         )
-        # battery dynamics
+
         constraints.append(
-            e_b[k + 1] ==
-            e_b[k] + (p_c[k] * cfg.ETA - p_d[k] / cfg.ETA) * cfg.DT
+            p_gr_im[k] - p_gr_ex[k] ==
+            load[k] + p_ch[k] - p_dis[k] - pv[k]
         )
-        # hardware limits
-        constraints.append(p_c[k] <= cfg.P_MAX)
-        constraints.append(p_d[k] <= cfg.P_MAX)
-        constraints.append(e_b[k + 1] >= cfg.CAPACITY * cfg.SOC_MIN_HARD)
-        constraints.append(e_b[k + 1] <= cfg.CAPACITY * cfg.SOC_MAX_HARD)
 
-        # soft constraints (health corridor)
-        constraints.append(
-            e_b[k + 1] >= (cfg.CAPACITY * cfg.SOC_MIN_SOFT) - slack_low[k])
-        constraints.append(
-            e_b[k + 1] <= (cfg.CAPACITY * cfg.SOC_MAX_SOFT) + slack_high[k])
+    cost_terms = (
+            cfg.PRICE_BUY * cp.sum(p_gr_im)  # import
+            - cfg.PRICE_SELL * cp.sum(p_gr_ex)  # export
+            + cfg.COST_WEAR * cp.sum(p_ch + p_dis)  # cycles
+            + cfg.COST_SOC_HOLDING * cp.sum_squares(soc - cfg.SOC_REF)  # SoC
+    )
 
-        # cost function
-        cost_grid = (p_gr_in[k] * cfg.PRICE_BUY - p_gr_out[k] * cfg.PRICE_SELL) * cfg.DT
-        cost_wear = cfg.COST_WEAR * (p_c[k] + p_d[k]) * cfg.DT
-        cost_hold = cfg.COST_SOC_HOLDING * e_b[k + 1] * cfg.DT
-        cost_penalty = cfg.PENALTY_LOW * slack_low[k] + cfg.PENALTY_HIGH * slack_high[k]
+    problem = cp.Problem(cp.Minimize(cost_terms), constraints)
 
-        cost_terms.append(cost_grid + cost_wear + cost_hold + cost_penalty)
+    problem.solve(
+        verbose=True,
+        max_iter=20000,
+        eps_abs=1e-3,
+        eps_rel=1e-3,
+    )
 
-    cost_terms.append(-cfg.VAL_TERMINAL * e_b[horizon])
+    if problem.status not in ["optimal", "optimal_inaccurate"]:
+        raise Exception(f"Problem {problem.status} is not optimal")
 
-    prob = cp.Problem(cp.Minimize(cp.sum(cost_terms)), constraints)
+    p_charge = float(p_ch.value[0])
+    p_discharge = float(p_dis.value[0])
+    p_import = float(p_gr_im.value[0])
+    p_export = float(p_gr_ex.value[0])
 
-    # try:
-    prob.solve(verbose=True)
-    # except:
-    #     prob.solve(solver=cp.SCS, verbose=True)
-
-    if prob.status not in ['optimal', 'optimal_inaccurate']:
-        return None
-
-    return e_b.value[0]
+    return p_charge, p_discharge, p_import, p_export
 
 
 def run_single_mpc_step(df, idx, cfg):
@@ -155,40 +146,44 @@ def run_single_mpc_step(df, idx, cfg):
         cfg.HORIZON_SAMPLES,
     )
 
-    pv_forecast = df["pv"][idx:idx + cfg.HORIZON_SAMPLES].to_numpy()
-    soc = df["soc_mpc"][idx]
+    # Replace the first element in the prediction with the real data
+    consumption_current = df["consumption"][idx]
+    consumption_prediction[0] = consumption_current
 
-    charge_power = simulate_mpc(
+    end_idx = idx + cfg.HORIZON_SAMPLES
+    if end_idx > len(df):
+        return
+
+    pv_forecast = df["pv"][idx:end_idx].to_numpy()
+
+    current_ts = df.index[idx]
+    soc = df.at[current_ts, "soc_mpc"]
+
+    p_charge, p_discharge, p_import, p_export = simulate_mpc(
         pv_forecast,
         consumption_prediction,
         soc,
         cfg
     )
 
-    pv = df["pv"][idx]
-    consumption = df["consumption"][idx]
+    df.at[current_ts, "export_mpc"] = p_export
+    df.at[current_ts, "import_mpc"] = p_import
+    df.at[current_ts, "charge_mpc"] = p_charge
+    df.at[current_ts, "discharge_mpc"] = p_discharge
 
-    discharge_power = max(consumption - pv + charge_power, 0)
-    import_power = max(consumption - pv + charge_power - discharge_power, 0)
-    export_power = max(pv - charge_power - consumption, 0)
-
-    next_soc = (
-        soc +
-        (charge_power * cfg.ETA - discharge_power / cfg.ETA)
-        * cfg.DT / cfg.CAPACITY
-    )
+    pv_val = df.at[current_ts, "pv"]
+    df.at[current_ts, "pv_consumption_mpc"] = max(0, pv_val - p_export)
 
     if idx + 1 >= len(df):
         return
 
-    ts_next = df.index[idx + 1]
-
-    df.at[ts_next, "soc_mpc"] = next_soc
-    df.at[ts_next, "pv_consumption_mpc"] = pv - export_power
-    df.at[ts_next, "export_mpc"] = export_power
-    df.at[ts_next, "import_mpc"] = import_power
-    df.at[ts_next, "charge_mpc"] = charge_power
-    df.at[ts_next, "discharge_mpc"] = discharge_power
+    next_soc = (
+            soc +
+            (p_charge * cfg.ETA_CH - p_discharge / cfg.ETA_DIS)
+            * cfg.DT / cfg.CAPACITY
+    )
+    next_ts = df.index[idx + 1]
+    df.at[next_ts, "soc_mpc"] = next_soc
 
 
 def main():
@@ -205,9 +200,10 @@ def main():
     ]:
         df[f"{column}_mpc"] = df[column].copy()
 
-
-    for idx in range(cfg.HISTORY_SAMPLES, len(df)):
+    for idx in range(cfg.HISTORY_SAMPLES, len(df) - cfg.HORIZON_SAMPLES):
         run_single_mpc_step(df, idx, cfg)
+        full = len(df) - cfg.HISTORY_SAMPLES - cfg.HORIZON_SAMPLES
+        print(f"Iteration {idx}/{full}")
 
     fig = px.line(
         df,
