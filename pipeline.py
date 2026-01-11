@@ -80,16 +80,7 @@ def get_table(df_cache, data_folder):
 
 def predict_values(df, curr_idx, history_size, horizon_size):
     if curr_idx <= history_size:
-        start_idx = max(0, curr_idx - history_size)
-        history = df["consumption"].iloc[start_idx:curr_idx]
-
-        if len(history) == 0:
-            mean_value = 0.0
-        else:
-            mean_value = history.mean()
-
-        prediction = np.full(horizon_size, mean_value)
-        return prediction
+        history_size = curr_idx
 
     return predict_load_horizon(
         df=df,
