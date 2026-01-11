@@ -6,6 +6,7 @@ import cvxpy as cp
 
 from load_forecast_profile import predict_load_horizon
 from data_parser import batch_collect
+from optimizer import MPCOptimizer
 
 
 class Config:
@@ -68,76 +69,7 @@ def predict_values(
         mode="auto",
     )
 
-
-
-def simulate_mpc(
-        pv_forecast,
-        consumption_forecast,
-        curr_soc,
-        cfg,
-):
-    assert len(pv_forecast) == len(consumption_forecast)
-
-    n = len(pv_forecast)
-
-    pv = np.array(pv_forecast)
-    load = np.array(consumption_forecast)
-
-    p_ch = cp.Variable(n, nonneg=True)
-    p_dis = cp.Variable(n, nonneg=True)
-    p_gr_im = cp.Variable(n, nonneg=True)
-    p_gr_ex = cp.Variable(n, nonneg=True)
-
-    soc = cp.Variable(n + 1)
-
-    constraints = [
-        soc[0] == curr_soc,
-        soc >= cfg.SOC_MIN_HARD,
-        soc <= cfg.SOC_MAX_HARD,
-        p_ch <= cfg.P_CH_MAX,
-        p_dis <= cfg.P_DIS_MAX,
-    ]
-
-    for k in range(n):
-        constraints.append(
-            soc[k + 1] == soc[k] +
-            (p_ch[k] * cfg.ETA_CH - p_dis[k] / cfg.ETA_DIS) *
-            cfg.DT / cfg.CAPACITY
-        )
-
-        constraints.append(
-            p_gr_im[k] - p_gr_ex[k] ==
-            load[k] + p_ch[k] - p_dis[k] - pv[k]
-        )
-
-    cost_terms = (
-            cfg.PRICE_BUY * cp.sum(p_gr_im)  # import
-            - cfg.PRICE_SELL * cp.sum(p_gr_ex)  # export
-            + cfg.COST_WEAR * cp.sum(p_ch + p_dis)  # cycles
-            + cfg.COST_SOC_HOLDING * cp.sum_squares(soc - cfg.SOC_REF)  # SoC
-    )
-
-    problem = cp.Problem(cp.Minimize(cost_terms), constraints)
-
-    problem.solve(
-        verbose=True,
-        max_iter=20000,
-        eps_abs=1e-3,
-        eps_rel=1e-3,
-    )
-
-    if problem.status not in ["optimal", "optimal_inaccurate"]:
-        raise Exception(f"Problem {problem.status} is not optimal")
-
-    p_charge = float(p_ch.value[0])
-    p_discharge = float(p_dis.value[0])
-    p_import = float(p_gr_im.value[0])
-    p_export = float(p_gr_ex.value[0])
-
-    return p_charge, p_discharge, p_import, p_export
-
-
-def run_single_mpc_step(df, idx, cfg):
+def run_single_mpc_step(df, idx, cfg, mpc):
     consumption_prediction = predict_values(
         df,
         idx,
@@ -147,23 +79,22 @@ def run_single_mpc_step(df, idx, cfg):
     )
 
     # Replace the first element in the prediction with the real data
-    consumption_current = df["consumption"][idx]
+    consumption_current = df["consumption"].iloc[idx]
     consumption_prediction[0] = consumption_current
 
     end_idx = idx + cfg.HORIZON_SAMPLES
     if end_idx > len(df):
         return
 
-    pv_forecast = df["pv"][idx:end_idx].to_numpy()
+    pv_forecast = df["pv"].iloc[idx:end_idx].to_numpy()
 
     current_ts = df.index[idx]
     soc = df.at[current_ts, "soc_mpc"]
 
-    p_charge, p_discharge, p_import, p_export = simulate_mpc(
+    p_charge, p_discharge, p_import, p_export = mpc.solve(
         pv_forecast,
         consumption_prediction,
-        soc,
-        cfg
+        soc
     )
 
     df.at[current_ts, "export_mpc"] = p_export
@@ -200,10 +131,16 @@ def main():
     ]:
         df[f"{column}_mpc"] = df[column].copy()
 
-    for idx in range(cfg.HISTORY_SAMPLES, len(df) - cfg.HORIZON_SAMPLES):
-        run_single_mpc_step(df, idx, cfg)
-        full = len(df) - cfg.HISTORY_SAMPLES - cfg.HORIZON_SAMPLES
-        print(f"Iteration {idx}/{full}")
+    mpc_optimizer = MPCOptimizer(cfg)
+    print("MPC Optimizer initialized and compiled.")
+
+    loop_range = range(cfg.HISTORY_SAMPLES, len(df) - cfg.HORIZON_SAMPLES)
+    full = len(loop_range)
+
+    for i, idx in enumerate(loop_range):
+        run_single_mpc_step(df, idx, cfg, mpc_optimizer)
+        if i % 100 == 0:
+            print(f"Iteration {i}/{full}")
 
     fig = px.line(
         df,
