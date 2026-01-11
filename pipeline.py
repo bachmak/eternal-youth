@@ -142,6 +142,8 @@ def main():
         if i % 100 == 0:
             print(f"Iteration {i}/{full}")
 
+    df.to_csv("out/df_result.csv", index=False)
+
     fig = px.line(
         df,
         x="time",
