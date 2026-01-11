@@ -11,7 +11,7 @@ from optimizer import MPCOptimizer
 
 class Config:
     DT = 5.0 / 60.0  # 5 minutes per sample
-    HISTORY_SAMPLES = 7 * 288  # 7 days
+    HISTORY_SAMPLES = 60 * 288  # 7 days
     HORIZON_SAMPLES = 288  # 1 day
 
     CAPACITY = 10.0  # kWh
