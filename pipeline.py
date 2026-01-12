@@ -14,7 +14,7 @@ class Config:
     DT = 5.0 / 60.0  # hours per sample (5 min)
     SAMPLES_PER_DAY = 288
     HISTORY_SAMPLES = 60 * 288  # 60 days (used by pipeline for forecast call)
-    HORIZON_SAMPLES = 144  # 1 day
+    HORIZON_SAMPLES = 288  # 1 day
 
     # Run MPC not every step (15 min => every 3 steps)
     MPC_INTERVAL_STEPS = 6  # 3*5min = 15min
@@ -34,8 +34,8 @@ class Config:
     SOC_TARGET = 0.20
 
     # Cost function weights
-    PRICE_BUY = 0.30
-    PRICE_SELL = 0.08
+    PRICE_BUY = 0.3258
+    PRICE_SELL = 0.0794
     COST_WEAR = 0.02
 
     # Calendar aging proxy weights inside MPC (hinge-based)
