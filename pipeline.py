@@ -324,12 +324,27 @@ def main():
     aging_cost_base = soh_drop_base_pct * cfg.EUR_PER_SOH_PERCENT
     aging_cost_mpc = soh_drop_mpc_pct * cfg.EUR_PER_SOH_PERCENT
 
-    # Exposure KPIs
-    hours_gt95_base = high_soc_exposure_hours(soc_base, 0.95, cfg)
-    hours_gt95_mpc = high_soc_exposure_hours(soc_mpc, 0.95, cfg)
+    thresholds = [
+        0.95, 0.9, 0.85, 0.8,
+        0.75, 0.7, 0.65, 0.6,
+        0.55, 0.5, 0.45, 0.4,
+        0.35, 0.3, 0.25, 0.2,
+        0.15, 0.1, 0.05, 0.0,
+    ]
 
-    hours_gt90_base = high_soc_exposure_hours(soc_base, 0.90, cfg)
-    hours_gt90_mpc = high_soc_exposure_hours(soc_mpc, 0.90, cfg)
+    # Exposure KPIs
+    hours_gt_n_base = [
+        high_soc_exposure_hours(soc_base, threshold, cfg)
+        for threshold in thresholds
+    ]
+
+    hours_gt_n_mpc = [
+        high_soc_exposure_hours(soc_mpc, threshold, cfg)
+        for threshold in thresholds
+    ]
+
+    hours_gt_n_base = list(zip(thresholds, np.diff(hours_gt_n_base)))
+    hours_gt_n_mpc = list(zip(thresholds, np.diff(hours_gt_n_mpc)))
 
     # Scenario “days to 80% SOH” using the √t-consistent method
     days_to_80_base = estimate_days_to_eol_from_window(soh_base, cfg)
@@ -340,16 +355,20 @@ def main():
     print(f"Energy cost (sim window): {energy_base:,.2f} €")
     print(f"SOH drop    (sim window): {soh_drop_base_pct:,.3f} %")
     print(f"Aging cost  (proxy €):    {aging_cost_base:,.2f} €")
-    print(f"Hours SoC>90%:            {hours_gt90_base:,.2f} h")
-    print(f"Hours SoC>95%:            {hours_gt95_base:,.2f} h")
+
+    for threshold, hours in hours_gt_n_base:
+        print(f"Hours SoC>{threshold*100}%:           "f" {hours:,.2f} h")
+
     print(f"Scenario days to 80% SOH: {days_to_80_base:,.1f} days")
 
     print("\n=== MPC ===")
     print(f"Energy cost (sim window): {energy_mpc:,.2f} €")
     print(f"SOH drop    (sim window): {soh_drop_mpc_pct:,.3f} %")
     print(f"Aging cost  (proxy €):    {aging_cost_mpc:,.2f} €")
-    print(f"Hours SoC>90%:            {hours_gt90_mpc:,.2f} h")
-    print(f"Hours SoC>95%:            {hours_gt95_mpc:,.2f} h")
+
+    for threshold, hours in hours_gt_n_mpc:
+        print(f"Hours SoC>{threshold*100}%:           "f" {hours:,.2f} h")
+
     print(f"Scenario days to 80% SOH: {days_to_80_mpc:,.1f} days")
 
     # Save output
