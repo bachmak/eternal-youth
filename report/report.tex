@@ -1,0 +1,566 @@
+\documentclass[conference]{IEEEtran}
+
+% --- Packages ---
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+% --- Tables / Layout helpers ---
+\usepackage{booktabs}
+\usepackage{array}
+
+% --- Page decoration (every page) ---
+\usepackage{eso-pic}
+\usepackage{tikz}
+\usetikzlibrary{calc} % <-- IMPORTANT: correct command is \usetikzlibrary
+
+% Farben definieren
+\definecolor{thRed}{RGB}{217, 136, 149}
+\definecolor{thOrange}{RGB}{242, 176, 137}
+\definecolor{thPurple}{RGB}{221, 168, 209}
+
+% --- Title ---
+\title{Optimization of Charging Performance for Battery Preservation in a Residential PV System}
+
+% --- Author Block ---
+\author{\IEEEauthorblockN{Dmitrii Kochetov, Henning Delius, Erik Birkholz}
+\IEEEauthorblockA{\textit{Sustainable Energy Systems} \\
+\textit{TH Köln (University of Applied Sciences)}\\
+Cologne, Germany \\
+\texttt{dmitrii.kochetov@th-koeln.de}, \texttt{henning.delius@th-koeln.de}, \texttt{erik.birkholz@th-koeln.de}}
+}
+
+% =========================================================
+% Page decoration (bars + logo) ON EVERY PAGE
+% =========================================================
+\newcommand{\THKPageDecor}{%
+\begin{tikzpicture}[remember picture, overlay]
+    % Top color bars (thin)
+    \fill[thRed] (current page.north west) rectangle ++(0.333\paperwidth, -0.2cm);
+    \fill[thOrange] ($(current page.north west) + (0.333\paperwidth, 0)$) rectangle ++(0.334\paperwidth, -0.2cm);
+    \fill[thPurple] ($(current page.north west) + (0.667\paperwidth, 0)$) rectangle ++(0.333\paperwidth, -0.2cm);
+
+    % Small logo bottom right (moved slightly up to avoid footer)
+    \node[anchor=south east] at ($(current page.south east) + (-0.8cm, 1.05cm)$) {
+        \includegraphics[width=1.45cm]{TH-Köln-logo-03}
+    };
+\end{tikzpicture}%
+}
+\AddToShipoutPictureBG{\THKPageDecor}
+
+% =========================================================
+% Helper: include figure if exists, otherwise show placeholder box (keeps report compilable)
+% =========================================================
+\newcommand{\MaybeIncludeGraphics}[2]{%
+\IfFileExists{#1}{\includegraphics[#2]{#1}}{%
+\fbox{\parbox[c][0.22\textheight][c]{0.95\linewidth}{\centering \textbf{Placeholder figure}\\Missing file: \texttt{#1}}}%
+}%
+}
+
+\begin{document}
+
+% Page numbers (Note: IEEE conference papers often omit, but enabled here on request)
+\pagestyle{plain}
+\pagenumbering{arabic}
+
+\maketitle
+
+% =========================================================
+% 1. Abstract
+% =========================================================
+\begin{abstract}
+Residential photovoltaic (PV) battery systems are widely deployed to increase self-consumption and reduce grid imports. However, common greedy energy management systems (EMS) charge the battery immediately when PV surplus is available, which can keep the battery at very high State of Charge (SoC) for hours on sunny days. Prolonged high-SoC storage is a known stress factor for calendar aging and can reduce usable lifetime. This report proposes a deterministic, forecast-based Model Predictive Control (MPC) strategy that shifts charging towards later hours to reduce high-SoC dwell time while controlling the trade-off against operating cost and energy autonomy. The controller optimizes a battery power trajectory under SoC and power constraints and uses a hinge-based SoC penalty with a minimum around 20\% SoC as a tractable proxy for calendar-aging exposure (low-SoC anchoring and strong penalties for high-SoC dwell). We additionally introduce an actuator-feasibility layer that (i) prevents simultaneous charging and discharging and (ii) prevents charging from the grid under constant-tariff operation. \textbf{Note:} At the time of writing, Section~VI (Verification) contains a structured placeholder template (metrics, plots, and expected trends). It will be populated with final simulation results, figures, and KPI tables once a satisfactory configuration is selected.
+\end{abstract}
+
+\begin{IEEEkeywords}
+Battery Degradation, Model Predictive Control, PV System, Home Energy Management System, Forecast-Based Control.
+\end{IEEEkeywords}
+
+% =========================================================
+% 2. Introduction
+% =========================================================
+\section{Introduction}
+Residential PV and behind-the-meter battery storage are increasingly used to raise on-site renewable utilization and reduce grid imports. At the household level, a Home Energy Management System (HEMS) coordinates PV generation, electrical load, grid exchange, and battery operation over time. In many real deployments, the EMS is tuned for short-term self-consumption and therefore charges as early as possible when PV surplus occurs. In practice, this can keep the battery close to full charge for extended periods during high-irradiance days, which is unfavorable for long-term battery health.
+
+Battery lifetime strongly affects both total cost of ownership and the environmental footprint of stationary storage. Lithium-ion degradation is commonly separated into cyclic aging (usage-related) and calendar aging (time- and condition-related). For stationary systems, calendar aging can become especially relevant when storage conditions remain unfavorable for long durations, e.g., elevated SoC and temperature \cite{b3,b4,b9}. Therefore, operational strategies that deliberately shape the SoC trajectory are a practical lever to improve lifetime while still meeting household energy goals.
+
+\textbf{Scope note (temperature).}
+While temperature is a key driver of calendar aging \cite{b3,b4,b9}, our current model does not explicitly include temperature dynamics. For the present assignment stage, we assume an approximately constant operating temperature and focus on SoC-driven exposure as the primary actionable lever in a PV time-shifting controller. Limitations and future work (temperature-aware modeling) are stated explicitly in Sections~VI--VIII.
+
+\textbf{Why we focus on calendar aging (and only proxy cyclic aging).}
+In residential stationary operation, manufacturers often specify high cycle life at moderate C-rates, while long dwell at high SoC can dominate stress exposure during sunny periods. In this project, we therefore prioritize reduction of high-SoC dwell time as a tractable proxy for calendar-aging exposure, while still including a lightweight throughput-based term as a proxy discouraging unnecessary charge/discharge activity.
+
+\textbf{Research question.} Can a forecast-based deterministic MPC reduce high-SoC dwell time (calendar-aging exposure proxy) compared to greedy charging while keeping energy autonomy and operating cost within an acceptable deviation?
+
+\textbf{Hypothesis.} By shifting charging to later hours using PV/load forecasts, MPC reduces dwell time at high SoC and improves SoC distribution over long simulation horizons. This benefit is \emph{not free}: stronger high-SoC avoidance may reduce self-consumption / self-sufficiency under forecast error and under realistic actuator feasibility rules.
+
+\textbf{Contributions.} We:
+\begin{itemize}
+    \item formulate the high-SoC dwell-time problem induced by greedy charging,
+    \item compare multiple concept classes and justify the selected deterministic MPC approach,
+    \item implement MPC as a convex quadratic program (QP) in Python (\texttt{cvxpy} + OSQP),
+    \item define an actuator-feasibility layer (no simultaneous charge/discharge, no charging from grid) and audit its impact,
+    \item provide a verification template with metrics, plots, and KPI tables to enable reproducible evaluation once final runs are available,
+    \item (planned) perform a targeted SoC-penalty sweep to illustrate the cost--health trade-off under an explicit cost budget.
+\end{itemize}
+
+% Figure: Use case / system schematic (from presentation)
+\begin{figure}[t]
+\centering
+\MaybeIncludeGraphics{Huawei_Uebersicht.png}{page=2,width=\linewidth}
+\caption{Use case and schematic structure of the residential hybrid PV system (from our project presentation).}
+\label{fig:usecase_system}
+\end{figure}
+
+This paper is organized as follows: Section II defines the problem, Section III reviews the state of the art, Section IV outlines the methodology, Section V describes the artefact, Section VI verifies the results (template placeholders at this stage), and Section VII concludes.
+
+% =========================================================
+% 3. Problem Statement
+% =========================================================
+\section{Problem Statement}
+Residential PV-battery systems are frequently operated by rule-based controllers that charge the battery whenever $P_{PV}(t) > P_{load}(t)$. This greedy strategy typically causes:
+\begin{itemize}
+    \item early saturation: the battery reaches high SoC (often near $100\%$) early in the day,
+    \item long dwell: the battery remains at high SoC until evening/night demand increases,
+    \item additional export/curtailment once the battery is full.
+\end{itemize}
+
+The key issue is not short-term energy balance but \textbf{calendar-aging exposure}: SoC level and time at elevated SoC are major stress factors for calendar aging in stationary operation \cite{b3,b4}. Recent multi-condition LFP studies further emphasize a strongly nonlinear relationship: storage at very high SOC (e.g., 90--100\%) accelerates capacity fade disproportionately compared to low SOC storage \cite{b9}. Since degradation is not directly visible on short horizons, practical controllers often neglect it.
+
+\textbf{Goal.} Reduce time spent at high SoC by shifting charging to later hours, \emph{subject to} an acceptable deviation in operating cost and energy autonomy relative to the greedy baseline. In this project, we operationalize this as: ``minimize high-SoC dwell (health proxy) under a cost budget''.
+
+% =========================================================
+% 4. State of the Art and Literature Review
+% =========================================================
+\section{State of the Art and Literature Review}
+We summarize research relevant to (i) aging-aware operation, (ii) forecast-based residential PV-battery control, and (iii) optimization and MPC for HEMS.
+
+\subsection*{Battery aging and relevance of SoC trajectories}
+Aging-aware operation strategies influence degradation by shaping stress factors such as SoC, depth of cycle, C-rate, and temperature \cite{b3}. Collath \textit{et al.} survey aging-aware battery energy storage operation and show that many approaches incorporate aging either via explicit degradation models or by introducing an aging-related operating cost \cite{b3}. Mechanistic calendar-aging modeling further supports the strong dependence of degradation on storage conditions such as SoC and temperature \cite{b4}. Multi-condition experimental results for LFP batteries confirm that calendar aging is strongly governed by SOC and temperature, with higher SOC accelerating capacity fade mainly via enhanced SEI growth \cite{b9}. These results motivate objectives that penalize extended high-SoC operation.
+
+\subsection*{Forecast-based control for residential PV-battery systems}
+Forecasts enable proactive scheduling rather than reactive charging. Angenendt \textit{et al.} compare operation strategies for PV home storage systems and show that forecast-based strategies can reduce average SoC and improve lifetime-related performance while maintaining high self-sufficiency \cite{b6}. This directly aligns with shifting charging to later hours based on expected PV availability and upcoming demand.
+
+\subsection*{Optimization methods for HEMS: MILP and MPC}
+Optimization-based HEMS has been studied using linear programming, MILP, and MPC. MILP formulations can incorporate discrete decisions and have been extended to account for battery degradation, e.g., cycle-degradation terms in the objective \cite{b8}. MPC is particularly suitable when decisions are updated repeatedly in a receding horizon, matching the practical setting of continuously updated forecasts. For residential PV-battery systems, van der Meer \textit{et al.} propose stochastic MPC using probabilistic forecasts and scenarios to improve performance under uncertainty \cite{b7}.
+
+\subsection*{Concept comparison and selection}
+Following the assignment requirement to elaborate multiple concepts, we considered three concept classes aligned with our use case:
+\begin{itemize}
+    \item \textbf{Heuristic rule-based control (greedy):} reactive charging to maximize immediate self-sufficiency.
+    \item \textbf{Deterministic MPC (selected):} convex optimization over a finite horizon with deterministic forecasts.
+    \item \textbf{Stochastic MPC (future work):} scenario-based optimization to handle forecast uncertainty.
+\end{itemize}
+
+\begin{table}[t]
+\centering
+\caption{Concept selection (criteria-based).}
+\label{tab:concept_selection}
+\small
+\begin{tabular}{p{2.9cm} p{1.35cm} p{1.35cm} p{1.35cm}}
+\toprule
+\textbf{Criterion} & \textbf{Heuristic} & \textbf{Det.\ MPC} & \textbf{Stoch.\ MPC} \\
+\midrule
+High-SoC dwell reduction & low & high & high \\
+Autonomy / cost trade-off control & limited & strong & strong \\
+Handles forecast uncertainty & n/a & limited & strong \\
+Implementation complexity & very low & medium & high \\
+Solver/runtime risk & none & low & medium/high \\
+Interpretability for grading & medium & high & medium \\
+\midrule
+\textbf{Decision} & baseline & \textbf{selected} & future work \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Positioning of this work}
+We use a lightweight, convex, hinge-based SoC penalty that targets high-SoC dwell time while having a minimum near 20\% SoC. This follows the common ``aging-cost'' idea \cite{b3} but keeps the formulation convex and implementable in \texttt{cvxpy}. Importantly, we do \emph{not} claim that 20\% is a universal optimum across chemistries or temperatures. Instead, we use 20\% as a practical \emph{low-SOC anchor} within an objective that primarily discourages extended residence at very high SOC, which is consistently reported as harmful for calendar aging \cite{b9}. Our focus is on time-shifting charge in a residential PV-battery setting using deterministic forecasts. To strengthen robustness and interpretability, we (i) add an actuator-feasibility layer and (ii) structure verification around explicit trade-offs (cost budget vs.\ health proxy), complemented by a planned penalty-weight sweep.
+
+% Figure: MPC overview (from presentation)
+\begin{figure}[t]
+\centering
+\MaybeIncludeGraphics{block_diagram.png}{page=4,width=\linewidth}
+\caption{MPC principle: forecasting, finite-horizon optimization, apply first action, receding horizon (from our project presentation).}
+\label{fig:mpc_principle}
+\end{figure}
+
+% =========================================================
+% 5. Methodology and Concept
+% =========================================================
+\section{Methodology and Concept}
+\subsection*{Control concept and time discretization}
+We compute an optimal battery schedule over a finite horizon of $N=288$ samples (24\,h at 5\,min resolution) using PV and load forecasts. In closed-loop simulation, the optimization is solved every 30\,min (every 6 samples), and the computed first action is held constant between solver calls. This reduces compute load while keeping a receding-horizon structure.
+
+\subsection*{Power balance and battery dynamics}
+We use the following sign convention: grid import and export are represented explicitly by nonnegative variables.
+The energy balance constraint per time step is
+\begin{equation}
+    P^{im}_{k} - P^{ex}_{k} = \hat{P}^{load}_{k} + P^{ch}_{k} - P^{dis}_{k} - \hat{P}^{pv}_{k},
+\end{equation}
+where $\hat{P}^{pv}_{k}$ and $\hat{P}^{load}_{k}$ denote PV and load forecasts.
+
+The SoC dynamics follow the discrete-time efficiency model used in the implementation:
+\begin{equation}
+    SoC_{k+1} = SoC_k + \frac{\Delta t}{E_{nom}}
+    \left(\eta_{ch} P^{ch}_{k} - \frac{1}{\eta_{dis}} P^{dis}_{k}\right),
+\end{equation}
+with $\Delta t = 5$\,min, capacity $E_{nom}=10$\,kWh, and efficiencies $\eta_{ch}=\eta_{dis}=0.95$.
+
+\subsection*{Constraints (QP layer, as implemented)}
+The convex constraints match the code:
+\begin{align}
+    SoC_{\min} \le SoC_k \le SoC_{\max}, \quad & SoC_{\min}=0.05,\; SoC_{\max}=1.00, \\
+    0 \le P^{ch}_{k} \le P^{ch}_{\max}, \quad & P^{ch}_{\max}=5\,\text{kW}, \\
+    0 \le P^{dis}_{k} \le P^{dis}_{\max}, \quad & P^{dis}_{\max}=5\,\text{kW}, \\
+    P^{im}_{k}\ge 0,\;\; P^{ex}_{k}\ge 0. \quad &
+\end{align}
+
+\textbf{Actuator-feasibility layer (simulation realism).}
+To reflect practical operation constraints and avoid unrealistic setpoints, the closed-loop simulation applies additional hard feasibility rules to the QP output before state propagation:
+\begin{itemize}
+    \item \textbf{No simultaneous charge and discharge:} enforce exclusivity at each time step (e.g., keep only the larger of $P^{ch}$ and $P^{dis}$).
+    \item \textbf{No charging from the grid (constant tariff):} enforce that charging uses instantaneous PV surplus only (i.e., cap $P^{ch}$ by $\max(P_{PV}-P_{load},0)$ in actuation).
+\end{itemize}
+These rules may clip the planned action under forecast mismatch; therefore, we audit their activation frequency and energy impact in Section~VI.
+
+\subsection*{Objective function (code-identical)}
+At each MPC solve, we minimize the sum of energy cost, a throughput-based wear term, and a calendar-aging proxy:
+\begin{equation}
+    \min \; J = J_{\text{energy}} + J_{\text{wear}} + J_{\text{cal}}.
+\end{equation}
+
+\textbf{Energy cost} over the horizon:
+\begin{equation}
+    J_{\text{energy}} =
+    \Delta t \sum_{k=0}^{N-1}
+    \left(c_{buy}\,P^{im}_{k} - c_{sell}\,P^{ex}_{k}\right),
+\end{equation}
+with $c_{buy}=0.3258$\,EUR/kWh and $c_{sell}=0.0794$\,EUR/kWh.
+
+\textbf{Cyclic wear proxy} (throughput-based):
+\begin{equation}
+    J_{\text{wear}} =
+    \Delta t \sum_{k=0}^{N-1} c_{wear}\left(P^{ch}_{k} + P^{dis}_{k}\right),
+\end{equation}
+with $c_{wear}=0.02$ (tuning parameter).
+
+\textbf{Calendar-aging proxy (hinge-based, minimum near 20\% SoC).}
+Recent experimental evidence on LFP cells shows that calendar aging accelerates markedly and nonlinearly with increasing storage SOC, especially at very high SOC (e.g., 90--100\%), mainly via enhanced SEI growth \cite{b9}. Motivated by this, we penalize high-SOC dwell time explicitly and use a low-SOC anchor ($SoC^{tar}=20\%$) to bias trajectories away from long high-SOC storage. We do not interpret $SoC^{tar}$ as a chemistry-independent optimum; rather, it serves as a practical reference point within a convex penalty structure.
+
+Let $x_+ := \max(0,x)$ and let $SoC^{tar}=0.20$ be the target. Define hinge terms:
+\begin{align}
+    b_k &= (SoC^{tar} - SoC_k)_+, \\
+    a_k &= (SoC_k - SoC^{tar})_+, \\
+    h^{85}_k &= (SoC_k - 0.85)_+, \\
+    h^{95}_k &= (SoC_k - 0.95)_+.
+\end{align}
+Then the calendar cost is
+\begin{equation}
+    J_{\text{cal}} =
+    c_{soc}\Big(
+        w_b\sum_k b_k^2
+        + w_a\sum_k a_k^2
+        + w_{85}\sum_k (h^{85}_k)^2
+        + w_{95}\sum_k (h^{95}_k)^2
+    \Big),
+\end{equation}
+with tunable weights. This construction softly attracts the SoC towards 20\% while adding strongly rising penalties above 85\% and 95\% SoC to reduce high-SoC dwell time.
+
+\textbf{Weight selection philosophy (basis, verification-linked).}
+To avoid ``arbitrary tuning'', we interpret the SoC-penalty weights via a budgeted trade-off:
+\begin{itemize}
+    \item define an operating-cost budget relative to greedy (e.g., $\Delta C_{\text{energy}} \le 5\%$),
+    \item sweep a small set of penalty configurations,
+    \item select the configuration that minimizes high-SOC dwell (or SoH proxy drop) among those meeting the cost budget,
+    \item report sensitivity: how robust the selected point is against small weight changes.
+\end{itemize}
+The simulation-based sweep and final selection are executed and reported in Section~VI (template placeholders at this stage).
+
+% Figure: MPC math summary (from presentation)
+\begin{figure}[t]
+\centering
+\MaybeIncludeGraphics{formeln.png}{page=5,width=\linewidth}
+\caption{Optimization problem, dynamics, constraints, and cost terms for our use case (from our project presentation).}
+\label{fig:mpc_formulation}
+\end{figure}
+
+% =========================================================
+% 6. Main Chapter (Artefact)
+% =========================================================
+\section{Description of the Artefact}
+\subsection*{Implementation overview}
+The controller is implemented in Python. The MPC optimization problem is set up once using \texttt{cvxpy} and solved repeatedly with updated parameters (PV forecast, load forecast, and current SoC). We solve the resulting convex QP using OSQP with warm-start enabled. To increase robustness, SoC is clipped slightly away from hard bounds before solving.
+
+\subsection*{Receding-horizon simulation loop (as implemented)}
+The simulation follows a closed-loop MPC procedure:
+\begin{itemize}
+    \item every 5 minutes, the system state (SoC) is advanced using the applied power setpoints,
+    \item every 30 minutes (every 6 steps), the MPC is re-solved over the 24h horizon,
+    \item between solver calls, the most recent action is held constant,
+    \item after each QP solve, the actuator-feasibility layer enforces exclusivity and prevents charging from grid.
+\end{itemize}
+
+\subsection*{Baseline controller (definition)}
+The greedy baseline is implemented as:
+\begin{itemize}
+    \item If $P_{PV,k} > P_{load,k}$ and $SoC_k < SoC_{\max}$: charge with $P^{ch}_{k}=\min(P_{PV,k}-P_{load,k}, P^{ch}_{\max})$.
+    \item If $P_{PV,k} < P_{load,k}$ and $SoC_k > SoC_{\min}$: discharge with $P^{dis}_{k}=\min(P_{load,k}-P_{PV,k}, P^{dis}_{\max})$.
+    \item Remaining imbalance is covered by grid import/export.
+\end{itemize}
+This makes the baseline fully specified and comparable to the MPC policy.
+
+\subsection*{Load forecasting module (data-driven, cached)}
+Household load forecasts are generated by a dedicated module (\texttt{load\_forecast\_profile.py}) designed for fast long-horizon simulations. The forecaster operates on a 5-minute grid and produces a 24-hour horizon. It follows a two-stage structure:
+
+\textbf{(1) Baseline profile (time-of-day).} A baseline load profile is computed on a 288-bin time-of-day grid using weighted historical averages. Training days are selected from a lookback window (up to 70 days) by matching the target weekday and a simple day-class proxy (\textit{low/mid/high}), where the class is inferred from the mean daily energy consumption of the previous three days. The baseline profile is computed with exponential recency weights with a half-life of 21 days, prioritizing recent behavior.
+
+\textbf{(2) Residual correction (Ridge regression).} If sufficient training data is available, a Ridge regression model is trained once per target day to predict deviations from the baseline profile. The residual model uses PV power and short PV lags, the most recently observed load values as lags, and a sinusoidal time encoding (sin/cos of time-of-day). To reflect practical importance, samples during morning and evening peaks are upweighted. The final forecast is the baseline profile plus the predicted residual.
+
+\textbf{Robust fallback.} If history is insufficient or regression training is not feasible, the module falls back to a fast weekday$\times$time-of-day profile forecast (and ultimately to global means). The implementation guaranties finite non-negative outputs (no NaN/inf), ensuring stable MPC execution over multi-month simulations.
+
+\subsection*{Reproducibility and key parameters}
+Table~\ref{tab:params} summarizes the key parameters required to reproduce the simulation.
+
+\begin{table}[t]
+\centering
+\caption{Reproducibility parameters (from implementation).}
+\label{tab:params}
+\small
+\begin{tabular}{p{3.2cm} p{3.9cm}}
+\toprule
+\textbf{Item} & \textbf{Value} \\
+\midrule
+Simulation time step $\Delta t$ & 5 min ($=5/60$ h) \\
+MPC horizon length $N$ & 288 (24 h) \\
+MPC solve interval & every 6 steps (30 min) \\
+Control between solves & hold last action \\
+PV peak power & 10.6 kWp \\
+Battery capacity $E_{nom}$ & 10 kWh \\
+SoC bounds & $SoC_{\min}=0.05$, $SoC_{\max}=1.00$ \\
+Power limits & $P^{ch}_{\max}=P^{dis}_{\max}=5$ kW \\
+Efficiencies & $\eta_{ch}=\eta_{dis}=0.95$ \\
+Energy prices & $c_{buy}=0.3258$, $c_{sell}=0.0794$ EUR/kWh \\
+Wear cost weight & $c_{wear}=0.02$ \\
+Calendar proxy target & $SoC^{tar}=0.20$ \\
+Calendar proxy weights & tunable ($c_{soc}$, $w_b$, $w_a$, $w_{85}$, $w_{95}$) \\
+Actuation feasibility & no simult.\ ch/dis; no grid-charging \\
+Solver & OSQP (warm start, eps $10^{-3}$) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% =========================================================
+% 7. Verification
+% =========================================================
+\section{Verification}
+\subsection*{Status note (placeholder template)}
+\textcolor{thPurple}{\textbf{Placeholder / template.}}
+\textcolor{thPurple}{This section is intentionally written as a structured verification template. Metrics, plots, and KPI tables are fixed and will not change conceptually; however, all numeric values, plots, and detailed discussion are \textbf{TBD} until a final MPC configuration (penalties and feasibility rules) is selected and a satisfactory long-horizon simulation run is completed.}
+
+\subsection*{Forecast causality and evaluation setting}
+The closed-loop simulation enforces causal forecasting for the household load: at each step, the load forecaster uses only historical data strictly prior to the current time index, and model artifacts are cached and trained per day to avoid information leakage. The first prediction sample is overwritten with the measured current load to ensure a consistent receding-horizon boundary.
+
+For PV, the offline evaluation uses the recorded PV time series over the horizon window (perfect-PV-forecast assumption). This isolates the effect of the charging policy and the SoC penalty; adding PV forecast errors is future work.
+
+\subsection*{Evaluation metrics (formal definitions, code-consistent)}
+We evaluate:
+\begin{itemize}
+    \item \textbf{High-SoC dwell time}:
+    \begin{equation}
+        T_{\ge SoC_{high}} = \sum_k \mathbb{1}\{SoC_k \ge SoC_{high}\}\Delta t.
+    \end{equation}
+
+    \item \textbf{Self-consumption rate (SCR)} (code-consistent):
+    \begin{equation}
+        SCR = \frac{\sum_k P^{pv\_cons}_k \Delta t}{\sum_k P^{pv}_k \Delta t},
+    \end{equation}
+    where $P^{pv\_cons}_k$ is PV power consumed on-site (including PV used directly by load and PV used to charge the battery, as computed by the simulation).
+
+    \item \textbf{Self-sufficiency (SS)}:
+    \begin{equation}
+        SS = 1 - \frac{\sum_k P^{im}_{k}\Delta t}{\sum_k P_{load,k}\Delta t}.
+    \end{equation}
+
+    \item \textbf{Operating energy cost}:
+    \begin{equation}
+        C_{\text{energy}} = \Delta t \sum_k \left(c_{buy}P^{im}_k - c_{sell}P^{ex}_k\right).
+    \end{equation}
+
+    \item \textbf{Feasibility/audit metrics} (new):
+    \begin{itemize}
+        \item rate of simultaneous charging/discharging in QP output vs.\ after actuation,
+        \item grid-charging prevented energy (kWh-equivalent) due to actuation feasibility,
+        \item energy balance residual (sanity check).
+    \end{itemize}
+\end{itemize}
+
+\subsection*{Wear-cost interpretation (SoH budget proxy)}
+To interpret the lifetime-oriented objective in monetary terms, we introduce a simple \emph{illustrative} wear-cost proxy based on an SoH budget.
+Assuming a replacement cost of 4000\,EUR and an end-of-life criterion at 80\% SoH, the usable SoH budget is 20\%, i.e.,
+\begin{equation}
+    \frac{4000\,\text{EUR}}{20\%} = 200\,\text{EUR per 1\% SoH loss}.
+\end{equation}
+Using a calibrated $\sqrt{t}$-style calendar aging proxy (25$^\circ$C calibration point in our project), we compute an equivalent cost impact for sustained high-SoC operation and compare policies over the same horizon. This proxy is used for \emph{relative comparison} between policies and is not intended as an absolute lifetime prediction.
+
+\subsection*{Results over the simulation horizon (TBD: placeholders for plots and expected trends)}
+\textcolor{thPurple}{\textbf{TBD simulation run:}} \textcolor{thPurple}{[Insert final evaluation horizon, e.g., ``Jul 11 $\rightarrow$ Jan 07''] and the final selected penalty configuration / cost budget (e.g., ``$\Delta C_{\text{energy}} \le 5\%$ vs greedy'').}
+
+\textbf{Expected trend (qualitative).}
+We expect MPC to reduce high-SoC dwell time (health proxy) compared to greedy by shifting charging towards later hours. Under realistic load-forecast error and actuator feasibility rules (no grid charging, no simultaneous charge/discharge), some degradation in SCR/SS and an increase in operating cost may occur; the goal is to keep this within an explicit budget while preserving a meaningful health benefit.
+
+% --- Figure placeholders (compile-safe) ---
+\begin{figure}[t]
+\centering
+\MaybeIncludeGraphics{out/<PRESET_ID>/plots/01_pv_vs_load.png}{width=\linewidth}
+\caption{\textcolor{thPurple}{[TBD]} PV generation and household load over the evaluation horizon (context plot).}
+\label{fig:pv_load_overview}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\MaybeIncludeGraphics{out/<PRESET_ID>/plots/02_soc_compare.png}{width=\linewidth}
+\caption{\textcolor{thPurple}{[TBD]} SoC comparison: greedy baseline vs.\ MPC (final configuration).}
+\label{fig:soc_compare}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\MaybeIncludeGraphics{out/<PRESET_ID>/plots/06_soc_hist.png}{width=\linewidth}
+\caption{\textcolor{thPurple}{[TBD]} SoC distribution (histogram): baseline vs.\ MPC (final configuration).}
+\label{fig:soc_hist}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\MaybeIncludeGraphics{out/<PRESET_ID>/plots/07_dwell_hours.png}{width=\linewidth}
+\caption{\textcolor{thPurple}{[TBD]} High-SoC dwell hours above 85\%, 90\% and 95\% SoC (baseline vs.\ MPC).}
+\label{fig:dwell_hours}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\MaybeIncludeGraphics{out/<PRESET_ID>/plots/05_soh_proxy.png}{width=\linewidth}
+\caption{\textcolor{thPurple}{[TBD]} SoH proxy trend (calendar-aging via $\sqrt{t}$-style model): baseline vs.\ MPC.}
+\label{fig:soh_proxy}
+\end{figure}
+
+\subsection*{Sensitivity analysis: penalty tuning under a cost budget (TBD template)}
+\textbf{Planned procedure.}
+We will select penalty weights using a Pareto-style analysis under an explicit operating-cost budget:
+\begin{itemize}
+    \item define a budget such as $\Delta C_{\text{energy}} \le 5\%$ compared to greedy on the same horizon,
+    \item among feasible configurations, select the configuration minimizing high-SoC dwell (or equivalently minimizing SoH-proxy drop),
+    \item report the trade-off between cost and health proxy.
+\end{itemize}
+
+\textbf{Planned plot.}
+\begin{figure*}[t]
+\centering
+\MaybeIncludeGraphics{out/penalty_tradeoff.png}{width=0.92\textwidth}
+\caption{\textcolor{thPurple}{[TBD]} Penalty trade-off: $\Delta$ energy cost (MPC$-$baseline) vs.\ health improvement (SoH drop reduction). Each point is one penalty configuration.}
+\label{fig:pareto_sweep}
+\end{figure*}
+
+\subsection*{KPI summary (TBD table template)}
+\begin{table}[t]
+\centering
+\caption{KPI summary over the evaluation horizon (\textcolor{thPurple}{TBD final numbers}).}
+\label{tab:kpis_run}
+\small
+\begin{tabular}{p{3.4cm} r r}
+\toprule
+\textbf{Metric} & \textbf{Baseline} & \textbf{MPC} \\
+\midrule
+Energy cost [EUR] & \textcolor{thPurple}{TBD} & \textcolor{thPurple}{TBD} \\
+$\Delta$ Energy cost vs.\ base [\%] & -- & \textcolor{thPurple}{TBD} \\
+Self-consumption rate SCR [-] & \textcolor{thPurple}{TBD} & \textcolor{thPurple}{TBD} \\
+Self-sufficiency SS [-] & \textcolor{thPurple}{TBD} & \textcolor{thPurple}{TBD} \\
+SoH drop proxy [\%] & \textcolor{thPurple}{TBD} & \textcolor{thPurple}{TBD} \\
+Aging EUR proxy [EUR] & \textcolor{thPurple}{TBD} & \textcolor{thPurple}{TBD} \\
+Days to 80\% SoH (proxy) [days] & \textcolor{thPurple}{TBD} & \textcolor{thPurple}{TBD} \\
+Dwell hours SoC $\ge$ 0.95 [h] & \textcolor{thPurple}{TBD} & \textcolor{thPurple}{TBD} \\
+Dwell hours SoC $\ge$ 0.90 [h] & \textcolor{thPurple}{TBD} & \textcolor{thPurple}{TBD} \\
+Dwell hours SoC $\ge$ 0.85 [h] & \textcolor{thPurple}{TBD} & \textcolor{thPurple}{TBD} \\
+QP simult ch/dis rate [\%] & -- & \textcolor{thPurple}{TBD} \\
+After actuation simult rate [\%] & -- & \textcolor{thPurple}{TBD (expect 0)} \\
+Grid-charging prevented [kWh eq] & -- & \textcolor{thPurple}{TBD} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{(Optional) Sanity check: energy balance residual (TBD)}
+For debugging and credibility, we include an energy-balance residual plot. Ideally it should remain near zero; spikes can indicate sign-convention issues, clipping, or numerical effects.
+
+% Uncomment if you want it in the main report after generating the plot:
+% \begin{figure}[t]
+% \centering
+% \MaybeIncludeGraphics{out/<PRESET_ID>/plots/08_balance_residual_mpc.png}{width=\linewidth}
+% \caption{\textcolor{thPurple}{[TBD]} Energy balance residual (should be near zero).}
+% \label{fig:balance_residual}
+% \end{figure}
+
+\textcolor{thPurple}{\textbf{Planned discussion points (TBD):}}
+\begin{itemize}
+    \item whether the chosen penalty set meets the cost budget (e.g., within 5\%),
+    \item how much SCR/SS decreases (if any) due to later charging and forecast error,
+    \item how much high-SoC dwell is reduced (primary health proxy),
+    \item impact of feasibility layer (how often clipping occurs; kWh prevented),
+    \item limitations: simplified aging proxy, perfect PV forecast assumption, deterministic MPC under uncertainty.
+\end{itemize}
+
+% =========================================================
+% 8. Summary and Outlook
+% =========================================================
+\section{Summary and Outlook}
+\subsection*{Summary}
+We addressed a common drawback of greedy PV-battery charging: extended high-SoC dwell time that increases calendar-aging exposure. We propose a deterministic forecast-based MPC strategy implemented as a convex QP in Python (\texttt{cvxpy} + OSQP), using a hinge-based SoC penalty (minimum near 20\%) as a tractable proxy for calendar-aging exposure. To increase realism and strengthen verification, we add an actuator-feasibility layer that prevents simultaneous charging/discharging and prevents charging from the grid under constant-tariff operation. At the current stage, the verification section is prepared as a structured template and will be populated with final simulation results, plots, and KPI tables once a satisfactory configuration is selected.
+
+\subsection*{Outlook}
+\begin{itemize}
+    \item \textbf{Uncertainty-aware MPC:} integrate probabilistic forecasts and scenarios (stochastic MPC) \cite{b7}.
+    \item \textbf{Richer degradation models:} include explicit calendar/cycle aging models or aging-cost formulations \cite{b3,b4}.
+    \item \textbf{Formal tuning under a budget:} select SoC-penalty weights by Pareto analysis under a cost budget (e.g., choose a ``knee'' point under seasonal variability).
+    \item \textbf{Dynamic tariffs:} include time-varying electricity prices and feed-in remuneration to co-optimize cost and lifetime.
+    \item \textbf{Temperature-aware operation:} extend the model to include temperature effects explicitly (e.g., Arrhenius-type scaling or measured temperature) \cite{b4,b9}.
+    \item \textbf{Hardware validation:} validate the approach on a physical HEMS/BESS setup.
+\end{itemize}
+
+% =========================================================
+% References
+% =========================================================
+\begin{thebibliography}{00}
+
+\bibitem{b3}
+N. Collath, D. Ringbeck, and T. Bocklisch, ``Aging aware operation of lithium-ion battery energy storage systems: A review,'' \textit{Journal of Energy Storage}, vol. 55, art. 105634, 2022, doi: 10.1016/j.est.2022.105634.
+
+\bibitem{b4}
+M. Karger, S. Rißmann, and W. G. Bessler, ``A mechanistic calendar aging model for lithium-ion batteries,'' \textit{Journal of Power Sources}, vol. 578, art. 233208, 2023, doi: 10.1016/j.jpowsour.2023.233208.
+
+\bibitem{b6}
+G. Angenendt, S. Zurmühlen, H. Axelsen, and D. U. Sauer,
+``Comparison of different operation strategies for PV battery home storage systems including forecast-based operation strategies,''
+\textit{Applied Energy}, vol. 229, pp. 884--899, 2018, doi: 10.1016/j.apenergy.2018.08.058.
+
+\bibitem{b7}
+D. van der Meer, G. C. Wang, and J. Munkhammar,
+``An alternative optimal strategy for stochastic model predictive control of a residential battery energy management system with solar photovoltaic,''
+\textit{Applied Energy}, vol. 283, art. 116289, 2021, doi: 10.1016/j.apenergy.2020.116289.
+
+\bibitem{b8}
+T. Dias de Lima, P. Faria, and Z. Vale,
+``Optimizing home energy management systems: A mixed integer linear programming model considering battery cycle degradation,''
+\textit{Energy and Buildings}, vol. 329, art. 115251, 2025, doi: 10.1016/j.enbuild.2024.115251.
+
+\bibitem{b9}
+Z. Yang, X. Li, J. Li, H. Li, J. Shi, X. Fan, Z. Cong, X. Feng, and X.-G. Yang,
+``Study on Influencing Factors of Calendar Aging and Cycle Aging of LFP Batteries,''
+\textit{Applied Sciences}, vol. 15, art. 12749, 2025, doi: 10.3390/app152312749.
+
+\end{thebibliography}
+
+\end{document}
