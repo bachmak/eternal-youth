@@ -7,12 +7,32 @@ import matplotlib.pyplot as plt
 from pipeline import Config, PENALTY_PRESETS
 import matplotlib.dates as mdates
 import scienceplots
+from adjustText import adjust_text
 
 plt.style.use(['science', 'ieee'])
 
 # Limit dates for a clearer data visualisation
 START_DATE = "2025-08-06"
 END_DATE = "2025-08-08"
+
+PRESET_META_INFO = {
+    "P2_high_low": {
+        "short_name": "Preset 1",
+        "full_name": "Preset 1: High cost priority",
+    },
+    "P4_high_balanced": {
+        "short_name": "Preset 2",
+        "full_name": "Preset 2: Moderate cost priority",
+    },
+    "P6_target20_balanced": {
+        "short_name": "Preset 3",
+        "full_name": "Preset 3: Increased SoH priority",
+    },
+    "P7_target20_maxlife": {
+        "short_name": "Preset 4",
+        "full_name": "Preset 4: High SoH priority",
+    },
+}
 
 
 def soc_multiplier_25c(soc: float) -> float:
@@ -414,6 +434,8 @@ def analyze_one_preset(preset_id: str, cfg):
     # NEW: single-row KPI summary for easy report-table filling (one file per preset)
     kpi_summary = {
         "preset_id": preset_id,
+        "preset_name": PRESET_META_INFO.get(preset_id).get("full_name"),
+        "preset_short_name": PRESET_META_INFO.get(preset_id).get("short_name"),
         "energy_cost_base_eur": energy_base,
         "energy_cost_mpc_eur": energy_mpc,
         "delta_energy_eur": delta_energy_eur,
@@ -455,7 +477,7 @@ def analyze_one_preset(preset_id: str, cfg):
         y_col_map={"pv": "PV-Generation", "consumption": "Consumption"},
         title="PV-Generation and Consumption",
         outfile=os.path.join(plot_dir, "01_pv_vs_load.pdf"), ylabel="kW",
-        date_range = date_range,
+        date_range=date_range,
     )
     save_lineplot_pdf(
         df, xcol="time",
@@ -474,7 +496,7 @@ def analyze_one_preset(preset_id: str, cfg):
         },
         title="Grid flows", outfile=os.path.join(plot_dir, "03_grid_flows.pdf"),
         ylabel="kW",
-        date_range = date_range,
+        date_range=date_range,
     )
     save_lineplot_pdf(
         df, xcol="time",
@@ -486,7 +508,7 @@ def analyze_one_preset(preset_id: str, cfg):
         },
         title="Battery Power",
         outfile=os.path.join(plot_dir, "04_batt_power.pdf"), ylabel="kW",
-        date_range = date_range,
+        date_range=date_range,
     )
     save_lineplot_pdf(
         df, xcol="time",
@@ -496,7 +518,7 @@ def analyze_one_preset(preset_id: str, cfg):
         },
         title="SoH Proxy (sqrt calendar)",
         outfile=os.path.join(plot_dir, "05_soh_proxy.pdf"), ylabel="SoH",
-        date_range = None,
+        date_range=None,
     )
     save_hist_pdf(
         df, col_a="soc", col_b="soc_mpc",
@@ -520,7 +542,7 @@ def analyze_one_preset(preset_id: str, cfg):
     df["balance_residual_mpc"] = resid_mpc
     save_lineplot_pdf(
         df, xcol="time",
-        y_col_map={"balance_residual_mpc": "MPC",},
+        y_col_map={"balance_residual_mpc": "MPC", },
         title="Energy Balance Residual",
         outfile=os.path.join(plot_dir, "08_balance_residual_mpc.pdf"),
         ylabel="kW",
@@ -573,17 +595,32 @@ def main():
 
     # Tradeoff plot: delta energy vs health improvement
     plt.figure(figsize=(3.5, 2.5))
+    plt.margins(0.2)
     plt.scatter(comp["delta_energy_eur"], comp["health_improvement_pct"],
-                alpha=0.8)
+                s=8, alpha=0.8)
 
-    # Adjust annotation text size for small plots
-    for _, r in comp.iterrows():
-        plt.text(r["delta_energy_eur"], r["health_improvement_pct"],
-                 r["preset_id"], fontsize=7)
+    texts = [plt.text(r["delta_energy_eur"], r["health_improvement_pct"],
+                      r["preset_name"], fontsize=7)
+             for _, r in comp.iterrows()]
 
-    plt.xlabel("$\Delta$ Energy Cost [€]")  # Latex syntax for label
-    plt.ylabel("Health Improvement [%]")
-    plt.title("Penalty Tradeoff")
+    adjust_text(
+        texts,
+        force_points=1.5,
+        expand_points=(5, 5),
+        ensure_inside_axes=True,
+        lim=1000,
+        # Only allow movement in the negative 'x' direction (left)
+        only_move={'points': 'x', 'text': 'x', 'static': 'x'},
+        # Set horizontal alignment to 'right' so the end of the text
+        # sits near the marker on its left side
+        va='center'
+    )
+
+    plt.grid(True, linestyle='--', linewidth=0.5, color='lightgray', alpha=0.7)
+    plt.gca().set_axisbelow(True)
+    plt.xlabel(r"$\Delta$ Energy Cost [€]")
+    plt.ylabel(r"Health Improvement [\%]")
+    plt.tight_layout()
 
     plt.savefig("out/penalty_tradeoff.pdf", format='pdf')
     plt.close()
