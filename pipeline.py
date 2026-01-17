@@ -4,6 +4,12 @@ import warnings
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import scienceplots
+
+# Set the style globally.
+# 'science' = base scientific style
+# 'ieee' = specific overrides for IEEE (font sizes, column widths)
+plt.style.use(['science', 'ieee'])
 
 from load_forecast_profile import predict_load_horizon
 from data_parser import batch_collect
@@ -308,7 +314,7 @@ def calc_ss(load, imp) -> float:
 
 
 # ============================================================
-# Plot helpers (PNG)
+# Plot helpers (PDF)
 # ============================================================
 def _downsample(x, y, max_points=25000):
     n = len(y)
@@ -318,9 +324,13 @@ def _downsample(x, y, max_points=25000):
     return x[::step], y[::step]
 
 
-def save_lineplot_png(df, xcol, ycols, title, outfile, ylabel=None):
+def save_lineplot_pdf(df, xcol, ycols, title, outfile, ylabel=None):
     x = df[xcol].to_numpy()
-    plt.figure(figsize=(12, 4))
+
+    # Standard IEEE double-column width is ~7 inches.
+    # Height of 2.5 inches gives a good aspect ratio for time series.
+    plt.figure(figsize=(7, 2.5))
+
     for c in ycols:
         y = df[c].to_numpy(dtype=float)
         xs, ys = _downsample(x, y)
@@ -329,55 +339,64 @@ def save_lineplot_png(df, xcol, ycols, title, outfile, ylabel=None):
     plt.xlabel(xcol)
     if ylabel:
         plt.ylabel(ylabel)
-    plt.legend(loc="best")
-    plt.tight_layout()
-    plt.savefig(outfile, dpi=200)
+    plt.legend(loc="best", frameon=True)
+
+    plt.savefig(outfile, format='pdf')
     plt.close()
 
 
-def save_hist_png(df, col_a, col_b, title, outfile, bins=60):
+def save_hist_pdf(df, col_a, col_b, title, outfile, bins=60):
     a = df[col_a].to_numpy(dtype=float)
     b = df[col_b].to_numpy(dtype=float)
-    plt.figure(figsize=(8, 4))
-    plt.hist(a, bins=bins, alpha=0.5, label=col_a)
-    plt.hist(b, bins=bins, alpha=0.5, label=col_b)
+
+    # Standard IEEE single-column width is ~3.5 inches
+    plt.figure(figsize=(3.5, 2.5))
+
+    plt.hist(a, bins=bins, alpha=0.6, label=col_a)
+    plt.hist(b, bins=bins, alpha=0.6, label=col_b)
     plt.title(title)
     plt.xlabel("SoC")
-    plt.ylabel("count")
+    plt.ylabel("Count")
     plt.legend(loc="best")
-    plt.tight_layout()
-    plt.savefig(outfile, dpi=200)
+
+    plt.savefig(outfile, format='pdf')
     plt.close()
 
 
-def save_bar_png(labels, values_a, values_b, title, outfile, label_a="baseline", label_b="mpc"):
+def save_bar_pdf(labels, values_a, values_b, title, outfile, label_a="Baseline",
+                 label_b="MPC"):
     x = np.arange(len(labels))
-    width = 0.38
-    plt.figure(figsize=(10, 4))
+    width = 0.35
+
+    # Single column width for bar charts
+    plt.figure(figsize=(3.5, 2.5))
+
     plt.bar(x - width / 2, values_a, width, label=label_a)
     plt.bar(x + width / 2, values_b, width, label=label_b)
     plt.xticks(x, labels, rotation=30, ha="right")
     plt.title(title)
-    plt.ylabel("hours")
+    plt.ylabel("Hours")
     plt.legend(loc="best")
-    plt.tight_layout()
-    plt.savefig(outfile, dpi=200)
+
+    plt.savefig(outfile, format='pdf')
     plt.close()
 
 
-def save_step_series_png(df, xcol, ycol, title, outfile, ylabel=None):
-    """Simple extra debug plot helper."""
+def save_step_series_pdf(df, xcol, ycol, title, outfile, ylabel=None):
     x = df[xcol].to_numpy()
     y = df[ycol].to_numpy(dtype=float)
     xs, ys = _downsample(x, y)
-    plt.figure(figsize=(12, 3.8))
-    plt.plot(xs, ys, linewidth=1.0)
+
+    # Wide format for audit trails
+    plt.figure(figsize=(7, 2.0))
+
+    plt.plot(xs, ys, linewidth=0.8)
     plt.title(title)
-    plt.xlabel(xcol)
+    plt.xlabel("Time")
     if ylabel:
         plt.ylabel(ylabel)
-    plt.tight_layout()
-    plt.savefig(outfile, dpi=200)
+
+    plt.savefig(outfile, format='pdf')
     plt.close()
 
 
@@ -741,65 +760,74 @@ def run_one_preset(df_raw: pd.DataFrame, preset_id: str):
     pd.DataFrame([kpi_summary]).to_csv(os.path.join(out_dir, "kpi_summary.csv"), index=False)
 
     # ============================================================
-    # Plots (file names match your report placeholders)
+    # Plots
     # ============================================================
-    save_lineplot_png(
+    save_lineplot_pdf(
         df_sim, xcol="time", ycols=["pv", "consumption"],
-        title="PV and Consumption", outfile=os.path.join(plot_dir, "01_pv_vs_load.png"), ylabel="kW"
+        title="PV and Consumption",
+        outfile=os.path.join(plot_dir, "01_pv_vs_load.pdf"), ylabel="kW"
     )
-    save_lineplot_png(
+    save_lineplot_pdf(
         df_sim, xcol="time", ycols=["soc", "soc_mpc"],
-        title=f"SoC: Baseline vs MPC ({preset_id})", outfile=os.path.join(plot_dir, "02_soc_compare.png"), ylabel="SoC"
+        title=f"SoC: Baseline vs MPC ({preset_id})",
+        outfile=os.path.join(plot_dir, "02_soc_compare.pdf"), ylabel="SoC"
     )
-    save_lineplot_png(
-        df_sim, xcol="time", ycols=["import", "import_mpc", "export", "export_mpc"],
-        title="Grid flows: Import/Export Baseline vs MPC", outfile=os.path.join(plot_dir, "03_grid_flows.png"), ylabel="kW"
+    save_lineplot_pdf(
+        df_sim, xcol="time",
+        ycols=["import", "import_mpc", "export", "export_mpc"],
+        title="Grid flows", outfile=os.path.join(plot_dir, "03_grid_flows.pdf"),
+        ylabel="kW"
     )
-    save_lineplot_png(
-        df_sim, xcol="time", ycols=["charge", "charge_mpc", "discharge", "discharge_mpc"],
-        title="Battery power: Charge/Discharge Baseline vs MPC", outfile=os.path.join(plot_dir, "04_batt_power.png"), ylabel="kW"
+    save_lineplot_pdf(
+        df_sim, xcol="time",
+        ycols=["charge", "charge_mpc", "discharge", "discharge_mpc"],
+        title="Battery Power",
+        outfile=os.path.join(plot_dir, "04_batt_power.pdf"), ylabel="kW"
     )
-    save_lineplot_png(
+    save_lineplot_pdf(
         df_sim, xcol="time", ycols=["soh", "soh_mpc"],
-        title="SoH proxy (sqrt calendar aging): Baseline vs MPC", outfile=os.path.join(plot_dir, "05_soh_proxy.png"), ylabel="SoH"
+        title="SoH Proxy (sqrt calendar)",
+        outfile=os.path.join(plot_dir, "05_soh_proxy.pdf"), ylabel="SoH"
     )
-    save_hist_png(
+    save_hist_pdf(
         df_sim, col_a="soc", col_b="soc_mpc",
-        title="SoC distribution: Baseline vs MPC", outfile=os.path.join(plot_dir, "06_soc_hist.png")
+        title="SoC Distribution",
+        outfile=os.path.join(plot_dir, "06_soc_hist.pdf")
     )
     labels = [">=85%", ">=90%", ">=95%"]
     vals_b = [dwell85_base, dwell90_base, dwell95_base]
     vals_m = [dwell85_mpc, dwell90_mpc, dwell95_mpc]
-    save_bar_png(
+    save_bar_pdf(
         labels, vals_b, vals_m,
-        title="High-SoC dwell hours (threshold counts)",
-        outfile=os.path.join(plot_dir, "07_dwell_hours.png"),
-        label_a="baseline",
-        label_b="mpc"
+        title="High-SoC Dwell Hours",
+        outfile=os.path.join(plot_dir, "07_dwell_hours.pdf"),
+        label_a="Baseline",
+        label_b="MPC"
     )
 
     # Residual plot (MPC)
     df_sim["balance_residual_mpc"] = resid_mpc
-    save_lineplot_png(
+    save_lineplot_pdf(
         df_sim, xcol="time", ycols=["balance_residual_mpc"],
-        title="Energy balance residual (MPC, should be near 0)",
-        outfile=os.path.join(plot_dir, "08_balance_residual_mpc.png"), ylabel="kW"
+        title="Energy Balance Residual",
+        outfile=os.path.join(plot_dir, "08_balance_residual_mpc.pdf"),
+        ylabel="kW"
     )
 
-    # NEW: Actuation audit plots (optional for report; useful for appendix)
+    # Actuation audit plots (optional for report; useful for appendix)
     df_sim["audit_clamp_delta_charge_kw"] = df_sim["audit_clamp_delta_charge_kw"].fillna(0.0)
     df_sim["audit_projection_delta_throughput_kw"] = df_sim["audit_projection_delta_throughput_kw"].fillna(0.0)
 
-    save_step_series_png(
+    save_step_series_pdf(
         df_sim, xcol="time", ycol="audit_clamp_delta_charge_kw",
         title="Actuation audit: charge clamp delta (kW) (raw - after measured-surplus cap)",
-        outfile=os.path.join(plot_dir, "09_audit_clamp_delta_charge.png"),
+        outfile=os.path.join(plot_dir, "09_audit_clamp_delta_charge.pdf"),
         ylabel="kW"
     )
-    save_step_series_png(
+    save_step_series_pdf(
         df_sim, xcol="time", ycol="audit_projection_delta_throughput_kw",
         title="Actuation audit: |throughput_after - throughput_raw| (kW)",
-        outfile=os.path.join(plot_dir, "10_audit_projection_delta_throughput.png"),
+        outfile=os.path.join(plot_dir, "10_audit_projection_delta_throughput.pdf"),
         ylabel="kW"
     )
 
@@ -833,21 +861,24 @@ def main():
     # Save comparison table (one row per preset)
     comp = pd.DataFrame(summaries)
     comp.to_csv("out/penalty_compare.csv", index=False)
-    print("\nSaved comparison table: out/penalty_compare.csv")
 
     # Tradeoff plot: delta energy vs health improvement
-    plt.figure(figsize=(8, 5))
-    plt.scatter(comp["delta_energy_eur"], comp["health_improvement_pct"])
-    for _, r in comp.iterrows():
-        plt.text(r["delta_energy_eur"], r["health_improvement_pct"], r["preset_id"], fontsize=9)
-    plt.xlabel("Δ Energy cost (MPC - baseline) [€]")
-    plt.ylabel("Health improvement (SoH drop reduction) [%]")
-    plt.title("Penalty tradeoff: cost vs health")
-    plt.tight_layout()
-    plt.savefig("out/penalty_tradeoff.png", dpi=200)
-    plt.close()
-    print("Saved tradeoff plot: out/penalty_tradeoff.png")
+    plt.figure(figsize=(3.5, 2.5))
+    plt.scatter(comp["delta_energy_eur"], comp["health_improvement_pct"],
+                alpha=0.8)
 
+    # Adjust annotation text size for small plots
+    for _, r in comp.iterrows():
+        plt.text(r["delta_energy_eur"], r["health_improvement_pct"],
+                 r["preset_id"], fontsize=7)
+
+    plt.xlabel("$\Delta$ Energy Cost [€]")  # Latex syntax for label
+    plt.ylabel("Health Improvement [%]")
+    plt.title("Penalty Tradeoff")
+
+    plt.savefig("out/penalty_tradeoff.pdf", format='pdf')
+    plt.close()
+    print("Saved tradeoff plot: out/penalty_tradeoff.pdf")
     print("\nDone.")
 
 
