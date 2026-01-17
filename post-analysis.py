@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from pipeline import Config, PENALTY_PRESETS
+import matplotlib.dates as mdates
 import scienceplots
 
 plt.style.use(['science', 'ieee'])
@@ -93,9 +94,6 @@ def calc_ss(load, imp) -> float:
     return 1.0 - safe_div(np.sum(imp), np.sum(load))
 
 
-# ============================================================
-# Plot helpers (PDF)
-# ============================================================
 def _downsample(x, y, max_points=25000):
     n = len(y)
     if n <= max_points:
@@ -104,47 +102,79 @@ def _downsample(x, y, max_points=25000):
     return x[::step], y[::step]
 
 
-def save_lineplot_pdf(df, xcol, ycols, title, outfile, ylabel=None):
-    x = df[xcol].to_numpy()
+import matplotlib.dates as mdates  # Ensure this is imported at the top
 
-    # Standard IEEE double-column width is ~7 inches.
-    # Height of 2.5 inches gives a good aspect ratio for time series.
+
+def save_lineplot_pdf(df, xcol, y_col_map, title, outfile, ylabel=None):
+    x = pd.to_datetime(df[xcol]).dt.to_pydatetime()
+
     plt.figure(figsize=(7, 2.5))
 
-    for c in ycols:
-        y = df[c].to_numpy(dtype=float)
+    for col, label in y_col_map.items():
+        y = df[col].to_numpy(dtype=float)
         xs, ys = _downsample(x, y)
-        plt.plot(xs, ys, label=c, linewidth=1.0)
+        plt.plot(xs, ys, label=label, linewidth=0.8)
+
     plt.title(title)
-    plt.xlabel(xcol)
+    plt.xlabel("Time")
     if ylabel:
         plt.ylabel(ylabel)
-    plt.legend(loc="best", frameon=True)
 
-    plt.savefig(outfile, format='pdf')
+    ax = plt.gca()
+    locator = mdates.AutoDateLocator()
+    ax.xaxis.set_major_locator(locator)
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+
+    plt.setp(ax.get_xticklabels(), rotation=30, ha="right")
+    plt.minorticks_off()
+
+    plt.legend(loc="best", frameon=True)
+    plt.savefig(outfile, format='pdf', bbox_inches='tight')
     plt.close()
 
 
-def save_hist_pdf(df, col_a, col_b, title, outfile, bins=60):
+def save_hist_pdf(df, col_a, label_a, col_b, label_b, title, outfile, bins=60):
     a = df[col_a].to_numpy(dtype=float)
     b = df[col_b].to_numpy(dtype=float)
 
-    # Standard IEEE single-column width is ~3.5 inches
     plt.figure(figsize=(3.5, 2.5))
 
-    plt.hist(a, bins=bins, alpha=0.6, label=col_a)
-    plt.hist(b, bins=bins, alpha=0.6, label=col_b)
+    plt.hist(a, bins=bins, alpha=0.6, label=label_a)
+    plt.hist(b, bins=bins, alpha=0.6, label=label_b)
+
     plt.title(title)
     plt.xlabel("SoC")
     plt.ylabel("Count")
     plt.legend(loc="best")
 
-    plt.savefig(outfile, format='pdf')
+    plt.savefig(outfile, format='pdf', bbox_inches='tight')
     plt.close()
 
 
-def save_bar_pdf(labels, values_a, values_b, title, outfile, label_a="Baseline",
-                 label_b="MPC"):
+def save_step_series_pdf(df, xcol, ycol, title, outfile, ylabel=None):
+    x = pd.to_datetime(df[xcol]).dt.to_pydatetime()
+    y = df[ycol].to_numpy(dtype=float)
+    xs, ys = _downsample(x, y)
+
+    plt.figure(figsize=(7, 2.0))
+    plt.plot(xs, ys, linewidth=0.8)
+    plt.title(title)
+    plt.xlabel("Time")
+    if ylabel:
+        plt.ylabel(ylabel)
+
+    ax = plt.gca()
+    locator = mdates.AutoDateLocator()
+    ax.xaxis.set_major_locator(locator)
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+    plt.setp(ax.get_xticklabels(), rotation=30, ha="right")
+    plt.minorticks_off()
+
+    plt.savefig(outfile, format='pdf', bbox_inches='tight')
+    plt.close()
+
+
+def save_bar_pdf(labels, values_a, values_b, title, outfile, label_a, label_b):
     x = np.arange(len(labels))
     width = 0.35
 
@@ -161,23 +191,6 @@ def save_bar_pdf(labels, values_a, values_b, title, outfile, label_a="Baseline",
     plt.savefig(outfile, format='pdf')
     plt.close()
 
-
-def save_step_series_pdf(df, xcol, ycol, title, outfile, ylabel=None):
-    x = df[xcol].to_numpy()
-    y = df[ycol].to_numpy(dtype=float)
-    xs, ys = _downsample(x, y)
-
-    # Wide format for audit trails
-    plt.figure(figsize=(7, 2.0))
-
-    plt.plot(xs, ys, linewidth=0.8)
-    plt.title(title)
-    plt.xlabel("Time")
-    if ylabel:
-        plt.ylabel(ylabel)
-
-    plt.savefig(outfile, format='pdf')
-    plt.close()
 
 # ============================================================
 # Analysis Logic
@@ -401,34 +414,52 @@ def analyze_one_preset(preset_id: str, cfg):
     # Plots
     # ============================================================
     save_lineplot_pdf(
-        df, xcol="time", ycols=["pv", "consumption"],
-        title="PV and Consumption",
+        df, xcol="time",
+        y_col_map={"pv": "PV-Generation", "consumption": "Consumption"},
+        title="PV-Generation and Consumption",
         outfile=os.path.join(plot_dir, "01_pv_vs_load.pdf"), ylabel="kW"
     )
     save_lineplot_pdf(
-        df, xcol="time", ycols=["soc", "soc_mpc"],
-        title=f"SoC: Baseline vs MPC ({preset_id})",
+        df, xcol="time",
+        y_col_map={"soc": "Baseline", "soc_mpc": "MPC"},
+        title=f"SoC Comparison",
         outfile=os.path.join(plot_dir, "02_soc_compare.pdf"), ylabel="SoC"
     )
     save_lineplot_pdf(
         df, xcol="time",
-        ycols=["import", "import_mpc", "export", "export_mpc"],
+        y_col_map={
+            "import": "Import Baseline",
+            "import_mpc": "Import MPC",
+            "export": "Export Baseline",
+            "export_mpc": "Export MPC",
+        },
         title="Grid flows", outfile=os.path.join(plot_dir, "03_grid_flows.pdf"),
         ylabel="kW"
     )
     save_lineplot_pdf(
         df, xcol="time",
-        ycols=["charge", "charge_mpc", "discharge", "discharge_mpc"],
+        y_col_map={
+            "charge": "Charge Baseline",
+            "charge_mpc": "Charge MPC",
+            "discharge": "Discharge Baseline",
+            "discharge_mpc": "Discharge MPC",
+        },
         title="Battery Power",
         outfile=os.path.join(plot_dir, "04_batt_power.pdf"), ylabel="kW"
     )
     save_lineplot_pdf(
-        df, xcol="time", ycols=["soh", "soh_mpc"],
+        df, xcol="time",
+        y_col_map={
+            "soh": "SoH Baseline",
+            "soh_mpc": "SoH MPC",
+        },
         title="SoH Proxy (sqrt calendar)",
         outfile=os.path.join(plot_dir, "05_soh_proxy.pdf"), ylabel="SoH"
     )
     save_hist_pdf(
         df, col_a="soc", col_b="soc_mpc",
+        label_a="Baseline",
+        label_b="MPC",
         title="SoC Distribution",
         outfile=os.path.join(plot_dir, "06_soc_hist.pdf")
     )
@@ -446,7 +477,8 @@ def analyze_one_preset(preset_id: str, cfg):
     # Residual plot (MPC)
     df["balance_residual_mpc"] = resid_mpc
     save_lineplot_pdf(
-        df, xcol="time", ycols=["balance_residual_mpc"],
+        df, xcol="time",
+        y_col_map={"balance_residual_mpc": "MPC",},
         title="Energy Balance Residual",
         outfile=os.path.join(plot_dir, "08_balance_residual_mpc.pdf"),
         ylabel="kW"
