@@ -10,6 +10,10 @@ import scienceplots
 
 plt.style.use(['science', 'ieee'])
 
+# Limit dates for a clearer data visualisation
+START_DATE = "2025-08-06"
+END_DATE = "2025-08-08"
+
 
 def soc_multiplier_25c(soc: float) -> float:
     x = np.array([0.00, 0.20, 0.50, 0.70, 0.85, 0.95, 1.00], dtype=float)
@@ -102,16 +106,28 @@ def _downsample(x, y, max_points=25000):
     return x[::step], y[::step]
 
 
-import matplotlib.dates as mdates  # Ensure this is imported at the top
+def save_lineplot_pdf(df, xcol, y_col_map, title, outfile, ylabel=None,
+                      date_range=None):
+    df_plot = df.copy()
+    if date_range is not None:
+        start_date, end_date = date_range
+        df_plot[xcol] = pd.to_datetime(df_plot[xcol])
 
+        if start_date:
+            df_plot = df_plot[df_plot[xcol] >= pd.to_datetime(start_date)]
+        if end_date:
+            df_plot = df_plot[df_plot[xcol] <= pd.to_datetime(end_date)]
 
-def save_lineplot_pdf(df, xcol, y_col_map, title, outfile, ylabel=None):
-    x = pd.to_datetime(df[xcol]).dt.to_pydatetime()
+        if df_plot.empty:
+            print(f"Warning: Plot '{title}' skipped (empty date range).")
+            return
+
+    x = pd.to_datetime(df_plot[xcol]).dt.to_pydatetime()
 
     plt.figure(figsize=(7, 2.5))
 
     for col, label in y_col_map.items():
-        y = df[col].to_numpy(dtype=float)
+        y = df_plot[col].to_numpy(dtype=float)
         xs, ys = _downsample(x, y)
         plt.plot(xs, ys, label=label, linewidth=0.8)
 
@@ -123,12 +139,55 @@ def save_lineplot_pdf(df, xcol, y_col_map, title, outfile, ylabel=None):
     ax = plt.gca()
     locator = mdates.AutoDateLocator()
     ax.xaxis.set_major_locator(locator)
-    ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+
+    duration = x.max() - x.min()
+
+    if duration.days > 30:
+        fmt = mdates.DateFormatter('%Y-%m-%d')
+    else:
+        fmt = mdates.DateFormatter('%Y-%m-%d %H:%M')
+
+    ax.xaxis.set_major_formatter(fmt)
 
     plt.setp(ax.get_xticklabels(), rotation=30, ha="right")
     plt.minorticks_off()
 
     plt.legend(loc="best", frameon=True)
+    plt.savefig(outfile, format='pdf', bbox_inches='tight')
+    plt.close()
+
+
+def save_step_series_pdf(df, xcol, ycol, title, outfile, ylabel=None,
+                         date_range=None):
+    df_plot = df.copy()
+    if date_range is not None:
+        start_date, end_date = date_range
+        df_plot[xcol] = pd.to_datetime(df_plot[xcol])
+        if start_date:
+            df_plot = df_plot[df_plot[xcol] >= pd.to_datetime(start_date)]
+        if end_date:
+            df_plot = df_plot[df_plot[xcol] <= pd.to_datetime(end_date)]
+
+        if df_plot.empty: return
+
+    x = pd.to_datetime(df_plot[xcol]).dt.to_pydatetime()
+    y = df_plot[ycol].to_numpy(dtype=float)
+    xs, ys = _downsample(x, y)
+
+    plt.figure(figsize=(7, 2.0))
+    plt.plot(xs, ys, linewidth=0.8)
+    plt.title(title)
+    plt.xlabel("Time")
+    if ylabel:
+        plt.ylabel(ylabel)
+
+    ax = plt.gca()
+    locator = mdates.AutoDateLocator()
+    ax.xaxis.set_major_locator(locator)
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+    plt.setp(ax.get_xticklabels(), rotation=30, ha="right")
+    plt.minorticks_off()
+
     plt.savefig(outfile, format='pdf', bbox_inches='tight')
     plt.close()
 
@@ -146,29 +205,6 @@ def save_hist_pdf(df, col_a, label_a, col_b, label_b, title, outfile, bins=60):
     plt.xlabel("SoC")
     plt.ylabel("Count")
     plt.legend(loc="best")
-
-    plt.savefig(outfile, format='pdf', bbox_inches='tight')
-    plt.close()
-
-
-def save_step_series_pdf(df, xcol, ycol, title, outfile, ylabel=None):
-    x = pd.to_datetime(df[xcol]).dt.to_pydatetime()
-    y = df[ycol].to_numpy(dtype=float)
-    xs, ys = _downsample(x, y)
-
-    plt.figure(figsize=(7, 2.0))
-    plt.plot(xs, ys, linewidth=0.8)
-    plt.title(title)
-    plt.xlabel("Time")
-    if ylabel:
-        plt.ylabel(ylabel)
-
-    ax = plt.gca()
-    locator = mdates.AutoDateLocator()
-    ax.xaxis.set_major_locator(locator)
-    ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
-    plt.setp(ax.get_xticklabels(), rotation=30, ha="right")
-    plt.minorticks_off()
 
     plt.savefig(outfile, format='pdf', bbox_inches='tight')
     plt.close()
@@ -410,6 +446,7 @@ def analyze_one_preset(preset_id: str, cfg):
     pd.DataFrame([kpi_summary]).to_csv(os.path.join(out_dir, "kpi_summary.csv"),
                                        index=False)
 
+    date_range = (START_DATE, END_DATE)
     # ============================================================
     # Plots
     # ============================================================
@@ -417,13 +454,15 @@ def analyze_one_preset(preset_id: str, cfg):
         df, xcol="time",
         y_col_map={"pv": "PV-Generation", "consumption": "Consumption"},
         title="PV-Generation and Consumption",
-        outfile=os.path.join(plot_dir, "01_pv_vs_load.pdf"), ylabel="kW"
+        outfile=os.path.join(plot_dir, "01_pv_vs_load.pdf"), ylabel="kW",
+        date_range = date_range,
     )
     save_lineplot_pdf(
         df, xcol="time",
         y_col_map={"soc": "Baseline", "soc_mpc": "MPC"},
         title=f"SoC Comparison",
-        outfile=os.path.join(plot_dir, "02_soc_compare.pdf"), ylabel="SoC"
+        outfile=os.path.join(plot_dir, "02_soc_compare.pdf"), ylabel="SoC",
+        date_range=date_range,
     )
     save_lineplot_pdf(
         df, xcol="time",
@@ -434,7 +473,8 @@ def analyze_one_preset(preset_id: str, cfg):
             "export_mpc": "Export MPC",
         },
         title="Grid flows", outfile=os.path.join(plot_dir, "03_grid_flows.pdf"),
-        ylabel="kW"
+        ylabel="kW",
+        date_range = date_range,
     )
     save_lineplot_pdf(
         df, xcol="time",
@@ -445,16 +485,18 @@ def analyze_one_preset(preset_id: str, cfg):
             "discharge_mpc": "Discharge MPC",
         },
         title="Battery Power",
-        outfile=os.path.join(plot_dir, "04_batt_power.pdf"), ylabel="kW"
+        outfile=os.path.join(plot_dir, "04_batt_power.pdf"), ylabel="kW",
+        date_range = date_range,
     )
     save_lineplot_pdf(
         df, xcol="time",
         y_col_map={
-            "soh": "SoH Baseline",
-            "soh_mpc": "SoH MPC",
+            "soh": "Baseline",
+            "soh_mpc": "MPC",
         },
         title="SoH Proxy (sqrt calendar)",
-        outfile=os.path.join(plot_dir, "05_soh_proxy.pdf"), ylabel="SoH"
+        outfile=os.path.join(plot_dir, "05_soh_proxy.pdf"), ylabel="SoH",
+        date_range = None,
     )
     save_hist_pdf(
         df, col_a="soc", col_b="soc_mpc",
@@ -481,7 +523,8 @@ def analyze_one_preset(preset_id: str, cfg):
         y_col_map={"balance_residual_mpc": "MPC",},
         title="Energy Balance Residual",
         outfile=os.path.join(plot_dir, "08_balance_residual_mpc.pdf"),
-        ylabel="kW"
+        ylabel="kW",
+        date_range=date_range,
     )
 
     # Actuation audit plots (optional for report; useful for appendix)
