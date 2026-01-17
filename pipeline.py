@@ -158,7 +158,8 @@ PENALTY_PRESETS = {
 
 def apply_penalty_preset(cfg: Config, preset_id: str) -> None:
     if preset_id not in PENALTY_PRESETS:
-        raise KeyError(f"Unknown preset_id '{preset_id}'. Available: {list(PENALTY_PRESETS.keys())}")
+        raise KeyError(
+            f"Unknown preset_id '{preset_id}'. Available: {list(PENALTY_PRESETS.keys())}")
 
     p = PENALTY_PRESETS[preset_id]
     cfg.SOC_TARGET = float(p["SOC_TARGET"])
@@ -181,16 +182,19 @@ def ensure_time_column(df: pd.DataFrame) -> pd.DataFrame:
             df["time"] = t.dt.tz_convert("Europe/Berlin").dt.tz_localize(None)
             return df
 
-    candidates = ["timestamp", "datetime", "date", "ts", "Time", "Zeit", "Zeitstempel"]
+    candidates = ["timestamp", "datetime", "date", "ts", "Time", "Zeit",
+                  "Zeitstempel"]
     for c in candidates:
         if c in df.columns:
             t = pd.to_datetime(df[c], utc=True, errors="coerce")
             if t.notna().mean() >= 0.8:
-                df["time"] = t.dt.tz_convert("Europe/Berlin").dt.tz_localize(None)
+                df["time"] = t.dt.tz_convert("Europe/Berlin").dt.tz_localize(
+                    None)
                 return df
 
     start = pd.Timestamp("1970-01-01 00:00:00")
-    df["time"] = pd.date_range(start, periods=len(df), freq=pd.Timedelta(minutes=5))
+    df["time"] = pd.date_range(start, periods=len(df),
+                               freq=pd.Timedelta(minutes=5))
     return df
 
 
@@ -209,12 +213,13 @@ def get_table(df_cache: str, data_folder: str) -> pd.DataFrame:
     # Baseline definition: dataset-recorded operation.
     # If import/export not provided, derive from dataset columns if possible.
     if "import" not in df.columns:
-        if all(c in df.columns for c in ["consumption", "pv_consumption", "charge", "discharge"]):
+        if all(c in df.columns for c in
+               ["consumption", "pv_consumption", "charge", "discharge"]):
             df["import"] = (
-                df["consumption"]
-                - df["pv_consumption"]
-                + df["charge"]
-                - df["discharge"]
+                    df["consumption"]
+                    - df["pv_consumption"]
+                    + df["charge"]
+                    - df["discharge"]
             ).clip(lower=0)
         else:
             df["import"] = 0.0
@@ -238,7 +243,8 @@ def soc_multiplier_25c(soc: float) -> float:
     return float(np.interp(float(soc), x, y))
 
 
-def compute_soh_sqrt_calendar(soc_series: np.ndarray, cfg: Config) -> np.ndarray:
+def compute_soh_sqrt_calendar(soc_series: np.ndarray,
+                              cfg: Config) -> np.ndarray:
     soc_series = np.asarray(soc_series, dtype=float)
     n = len(soc_series)
     dt_days = cfg.DT / 24.0
@@ -261,7 +267,8 @@ def compute_soh_sqrt_calendar(soc_series: np.ndarray, cfg: Config) -> np.ndarray
     return soh
 
 
-def estimate_days_to_eol_from_window(soh_series: np.ndarray, cfg: Config) -> float:
+def estimate_days_to_eol_from_window(soh_series: np.ndarray,
+                                     cfg: Config) -> float:
     n = len(soh_series)
     if n < 2:
         return np.nan
@@ -453,16 +460,19 @@ def run_simulation(df: pd.DataFrame, cfg: Config):
     dis_mpc_raw = np.full(n, np.nan, dtype=float)
 
     # Actuation audit series
-    clamp_delta_ch = np.full(n, np.nan, dtype=float)       # how much charging got clamped by measured surplus
-    proj_delta_thr = np.full(n, np.nan, dtype=float)       # |(ch+dis)_after - (ch+dis)_raw|
-    simult_raw_flag = np.full(n, 0, dtype=int)             # raw simult indicator
-    clamp_active_flag = np.full(n, 0, dtype=int)           # clamp activation indicator
+    clamp_delta_ch = np.full(n, np.nan,
+                             dtype=float)  # how much charging got clamped by measured surplus
+    proj_delta_thr = np.full(n, np.nan,
+                             dtype=float)  # |(ch+dis)_after - (ch+dis)_raw|
+    simult_raw_flag = np.full(n, 0, dtype=int)  # raw simult indicator
+    clamp_active_flag = np.full(n, 0, dtype=int)  # clamp activation indicator
 
     soc_mpc[0] = float(soc_base[0])
 
     mpc = MPCOptimizer(cfg)
     print("MPC Optimizer initialized and compiled.")
-    print(f"[DEBUG] Imported optimizer from: {getattr(optimizer_mod, '__file__', 'UNKNOWN')}")
+    print(
+        f"[DEBUG] Imported optimizer from: {getattr(optimizer_mod, '__file__', 'UNKNOWN')}")
     print(f"[DEBUG] MPCOptimizer class module: {MPCOptimizer.__module__}")
 
     plan_ch = None
@@ -480,7 +490,8 @@ def run_simulation(df: pd.DataFrame, cfg: Config):
             curr_soc = float(soc_mpc[idx])
 
             plan_ch, plan_dis = mpc.solve_plan(
-                pv_forecast, load_forecast, curr_soc, n_apply=int(cfg.MPC_INTERVAL_STEPS)
+                pv_forecast, load_forecast, curr_soc,
+                n_apply=int(cfg.MPC_INTERVAL_STEPS)
             )
             plan_ptr = 0
 
@@ -541,10 +552,12 @@ def run_simulation(df: pd.DataFrame, cfg: Config):
         # State propagation
         if idx + 1 < n:
             next_soc = (
-                soc_mpc[idx]
-                + (p_ch * cfg.ETA_CH - p_dis / cfg.ETA_DIS) * cfg.DT / cfg.CAPACITY
+                    soc_mpc[idx]
+                    + (
+                                p_ch * cfg.ETA_CH - p_dis / cfg.ETA_DIS) * cfg.DT / cfg.CAPACITY
             )
-            soc_mpc[idx + 1] = float(np.clip(next_soc, cfg.SOC_MIN_HARD, cfg.SOC_MAX_HARD))
+            soc_mpc[idx + 1] = float(
+                np.clip(next_soc, cfg.SOC_MIN_HARD, cfg.SOC_MAX_HARD))
 
         if i % 2000 == 0:
             print(f"Iteration {i}/{sim_end}")
@@ -599,13 +612,18 @@ def run_one_preset(df_raw: pd.DataFrame, preset_id: str):
 
     # Core KPIs
     energy_base = energy_cost_eur(df_sim["import"], df_sim["export"], cfg)
-    energy_mpc = energy_cost_eur(df_sim["import_mpc"], df_sim["export_mpc"], cfg)
+    energy_mpc = energy_cost_eur(df_sim["import_mpc"], df_sim["export_mpc"],
+                                 cfg)
 
-    scr_base = calc_scr(df_sim["pv"].to_numpy(dtype=float), df_sim["pv_consumption"].to_numpy(dtype=float))
-    scr_mpc = calc_scr(df_sim["pv"].to_numpy(dtype=float), df_sim["pv_consumption_mpc"].to_numpy(dtype=float))
+    scr_base = calc_scr(df_sim["pv"].to_numpy(dtype=float),
+                        df_sim["pv_consumption"].to_numpy(dtype=float))
+    scr_mpc = calc_scr(df_sim["pv"].to_numpy(dtype=float),
+                       df_sim["pv_consumption_mpc"].to_numpy(dtype=float))
 
-    ss_base = calc_ss(df_sim["consumption"].to_numpy(dtype=float), df_sim["import"].to_numpy(dtype=float))
-    ss_mpc = calc_ss(df_sim["consumption"].to_numpy(dtype=float), df_sim["import_mpc"].to_numpy(dtype=float))
+    ss_base = calc_ss(df_sim["consumption"].to_numpy(dtype=float),
+                      df_sim["import"].to_numpy(dtype=float))
+    ss_mpc = calc_ss(df_sim["consumption"].to_numpy(dtype=float),
+                     df_sim["import_mpc"].to_numpy(dtype=float))
 
     soh_drop_base_pct = (1.0 - float(soh_base[-1])) * 100.0
     soh_drop_mpc_pct = (1.0 - float(soh_mpc[-1])) * 100.0
@@ -624,14 +642,20 @@ def run_one_preset(df_raw: pd.DataFrame, preset_id: str):
     dwell85_mpc = dwell_hours(soc_mpc, 0.85, cfg)
 
     # Energy balance residual sanity check (MPC)
-    grid_mpc = df_sim["import_mpc"].to_numpy(dtype=float) - df_sim["export_mpc"].to_numpy(dtype=float)
-    batt_mpc = df_sim["discharge_mpc"].to_numpy(dtype=float) - df_sim["charge_mpc"].to_numpy(dtype=float)
-    resid_mpc = df_sim["consumption"].to_numpy(dtype=float) - df_sim["pv"].to_numpy(dtype=float) - batt_mpc - grid_mpc
+    grid_mpc = df_sim["import_mpc"].to_numpy(dtype=float) - df_sim[
+        "export_mpc"].to_numpy(dtype=float)
+    batt_mpc = df_sim["discharge_mpc"].to_numpy(dtype=float) - df_sim[
+        "charge_mpc"].to_numpy(dtype=float)
+    resid_mpc = df_sim["consumption"].to_numpy(dtype=float) - df_sim[
+        "pv"].to_numpy(dtype=float) - batt_mpc - grid_mpc
 
     # Baseline residual (dataset consistency)
-    grid_base = df_sim["import"].to_numpy(dtype=float) - df_sim["export"].to_numpy(dtype=float)
-    batt_base = df_sim["discharge"].to_numpy(dtype=float) - df_sim["charge"].to_numpy(dtype=float)
-    resid_base = df_sim["consumption"].to_numpy(dtype=float) - df_sim["pv"].to_numpy(dtype=float) - batt_base - grid_base
+    grid_base = df_sim["import"].to_numpy(dtype=float) - df_sim[
+        "export"].to_numpy(dtype=float)
+    batt_base = df_sim["discharge"].to_numpy(dtype=float) - df_sim[
+        "charge"].to_numpy(dtype=float)
+    resid_base = df_sim["consumption"].to_numpy(dtype=float) - df_sim[
+        "pv"].to_numpy(dtype=float) - batt_base - grid_base
 
     # Audits
     eps = 1e-3
@@ -648,24 +672,30 @@ def run_one_preset(df_raw: pd.DataFrame, preset_id: str):
     # Clamp audit
     clamp_delta_kw = df_sim["audit_clamp_delta_charge_kw"].to_numpy(dtype=float)
     grid_charge_prevented_kwh_equiv = float(np.nansum(clamp_delta_kw) * cfg.DT)
-    clamp_active_steps = int(np.sum(df_sim["audit_clamp_active_flag"].to_numpy(dtype=int)))
+    clamp_active_steps = int(
+        np.sum(df_sim["audit_clamp_active_flag"].to_numpy(dtype=int)))
     clamp_active_rate_pct = 100.0 * clamp_active_steps / max(1, len(df_sim))
 
     # Projection audit (throughput delta)
-    proj_delta_thr_kw = df_sim["audit_projection_delta_throughput_kw"].to_numpy(dtype=float)
-    projection_delta_throughput_kwh_equiv = float(np.nansum(proj_delta_thr_kw) * cfg.DT)
+    proj_delta_thr_kw = df_sim["audit_projection_delta_throughput_kw"].to_numpy(
+        dtype=float)
+    projection_delta_throughput_kwh_equiv = float(
+        np.nansum(proj_delta_thr_kw) * cfg.DT)
 
     # Cost deltas
     delta_energy_eur = energy_mpc - energy_base
     delta_energy_pct = 100.0 * delta_energy_eur / max(1e-12, energy_base)
-    health_improvement_pct = 100.0 * (soh_drop_base_pct - soh_drop_mpc_pct) / max(1e-12, soh_drop_base_pct)
+    health_improvement_pct = 100.0 * (
+                soh_drop_base_pct - soh_drop_mpc_pct) / max(1e-12,
+                                                            soh_drop_base_pct)
 
     # Console summary (human)
     print("\n=== KPI SUMMARY (SIM WINDOW) ===")
     print(f"Preset:               {preset_id}")
     print(f"Energy cost baseline: {energy_base:,.2f} €")
     print(f"Energy cost MPC:      {energy_mpc:,.2f} €")
-    print(f"Δ Energy cost:        {delta_energy_eur:,.2f} € ({delta_energy_pct:.2f}%)")
+    print(
+        f"Δ Energy cost:        {delta_energy_eur:,.2f} € ({delta_energy_pct:.2f}%)")
     print(f"SCR baseline:         {scr_base:.4f}")
     print(f"SCR MPC:              {scr_mpc:.4f}")
     print(f"SS baseline:          {ss_base:.4f}")
@@ -677,18 +707,26 @@ def run_one_preset(df_raw: pd.DataFrame, preset_id: str):
     print(f"Aging € proxy MPC:    {aging_cost_mpc:,.2f} €")
     print(f"Days to 80% base:     {days_to_80_base:,.1f} days")
     print(f"Days to 80% MPC:      {days_to_80_mpc:,.1f} days")
-    print(f"Dwell SoC>=0.95 [h]:  base={dwell95_base:,.2f}, mpc={dwell95_mpc:,.2f}")
-    print(f"Dwell SoC>=0.90 [h]:  base={dwell90_base:,.2f}, mpc={dwell90_mpc:,.2f}")
-    print(f"Dwell SoC>=0.85 [h]:  base={dwell85_base:,.2f}, mpc={dwell85_mpc:,.2f}")
-    print(f"QP simult ch/dis:     {simult_steps_raw} steps ({simult_rate_raw_pct:.3f}%)")
-    print(f"After actuation:      {simult_steps_after} steps ({simult_rate_after_pct:.6f}%)")
-    print(f"Clamp active:         {clamp_active_steps} steps ({clamp_active_rate_pct:.3f}%)")
-    print(f"Grid-charge prevented (kWh eq): {grid_charge_prevented_kwh_equiv:.6f}")
-    print(f"Projection Δthroughput (kWh eq): {projection_delta_throughput_kwh_equiv:.6f}")
+    print(
+        f"Dwell SoC>=0.95 [h]:  base={dwell95_base:,.2f}, mpc={dwell95_mpc:,.2f}")
+    print(
+        f"Dwell SoC>=0.90 [h]:  base={dwell90_base:,.2f}, mpc={dwell90_mpc:,.2f}")
+    print(
+        f"Dwell SoC>=0.85 [h]:  base={dwell85_base:,.2f}, mpc={dwell85_mpc:,.2f}")
+    print(
+        f"QP simult ch/dis:     {simult_steps_raw} steps ({simult_rate_raw_pct:.3f}%)")
+    print(
+        f"After actuation:      {simult_steps_after} steps ({simult_rate_after_pct:.6f}%)")
+    print(
+        f"Clamp active:         {clamp_active_steps} steps ({clamp_active_rate_pct:.3f}%)")
+    print(
+        f"Grid-charge prevented (kWh eq): {grid_charge_prevented_kwh_equiv:.6f}")
+    print(
+        f"Projection Δthroughput (kWh eq): {projection_delta_throughput_kwh_equiv:.6f}")
     print(f"Residual max|.| BASE: {np.max(np.abs(resid_base)):.6f} kW")
-    print(f"Residual RMS  BASE:   {np.sqrt(np.mean(resid_base**2)):.6f} kW")
+    print(f"Residual RMS  BASE:   {np.sqrt(np.mean(resid_base ** 2)):.6f} kW")
     print(f"Residual max|.| MPC:  {np.max(np.abs(resid_mpc)):.6f} kW")
-    print(f"Residual RMS  MPC:    {np.sqrt(np.mean(resid_mpc**2)):.6f} kW")
+    print(f"Residual RMS  MPC:    {np.sqrt(np.mean(resid_mpc ** 2)):.6f} kW")
 
     # Save outputs for this preset
     df.to_csv(os.path.join(out_dir, "df_result.csv"), index=False)
@@ -713,13 +751,19 @@ def run_one_preset(df_raw: pd.DataFrame, preset_id: str):
         ("mpc_simultaneous_rate_raw_pct", np.nan, simult_rate_raw_pct),
         ("mpc_simultaneous_rate_after_pct", np.nan, simult_rate_after_pct),
         ("mpc_clamp_active_rate_pct", np.nan, clamp_active_rate_pct),
-        ("mpc_grid_charge_prevented_kwh_equiv", np.nan, grid_charge_prevented_kwh_equiv),
-        ("mpc_projection_delta_throughput_kwh_equiv", np.nan, projection_delta_throughput_kwh_equiv),
+        ("mpc_grid_charge_prevented_kwh_equiv", np.nan,
+         grid_charge_prevented_kwh_equiv),
+        ("mpc_projection_delta_throughput_kwh_equiv", np.nan,
+         projection_delta_throughput_kwh_equiv),
 
-        ("baseline_balance_residual_max_abs_kw", float(np.max(np.abs(resid_base))), np.nan),
-        ("baseline_balance_residual_rms_kw", float(np.sqrt(np.mean(resid_base**2))), np.nan),
-        ("mpc_balance_residual_max_abs_kw", np.nan, float(np.max(np.abs(resid_mpc)))),
-        ("mpc_balance_residual_rms_kw", np.nan, float(np.sqrt(np.mean(resid_mpc**2)))),
+        ("baseline_balance_residual_max_abs_kw",
+         float(np.max(np.abs(resid_base))), np.nan),
+        ("baseline_balance_residual_rms_kw",
+         float(np.sqrt(np.mean(resid_base ** 2))), np.nan),
+        ("mpc_balance_residual_max_abs_kw", np.nan,
+         float(np.max(np.abs(resid_mpc)))),
+        ("mpc_balance_residual_rms_kw", np.nan,
+         float(np.sqrt(np.mean(resid_mpc ** 2)))),
     ]
     pd.DataFrame(kpi_rows, columns=["metric", "baseline", "mpc"]).to_csv(
         os.path.join(out_dir, "kpis.csv"), index=False
@@ -757,7 +801,8 @@ def run_one_preset(df_raw: pd.DataFrame, preset_id: str):
         "baseline_residual_rms_kw": float(np.sqrt(np.mean(resid_base ** 2))),
         "mpc_residual_rms_kw": float(np.sqrt(np.mean(resid_mpc ** 2))),
     }
-    pd.DataFrame([kpi_summary]).to_csv(os.path.join(out_dir, "kpi_summary.csv"), index=False)
+    pd.DataFrame([kpi_summary]).to_csv(os.path.join(out_dir, "kpi_summary.csv"),
+                                       index=False)
 
     # ============================================================
     # Plots
@@ -815,8 +860,10 @@ def run_one_preset(df_raw: pd.DataFrame, preset_id: str):
     )
 
     # Actuation audit plots (optional for report; useful for appendix)
-    df_sim["audit_clamp_delta_charge_kw"] = df_sim["audit_clamp_delta_charge_kw"].fillna(0.0)
-    df_sim["audit_projection_delta_throughput_kw"] = df_sim["audit_projection_delta_throughput_kw"].fillna(0.0)
+    df_sim["audit_clamp_delta_charge_kw"] = df_sim[
+        "audit_clamp_delta_charge_kw"].fillna(0.0)
+    df_sim["audit_projection_delta_throughput_kw"] = df_sim[
+        "audit_projection_delta_throughput_kw"].fillna(0.0)
 
     save_step_series_pdf(
         df_sim, xcol="time", ycol="audit_clamp_delta_charge_kw",
@@ -827,7 +874,8 @@ def run_one_preset(df_raw: pd.DataFrame, preset_id: str):
     save_step_series_pdf(
         df_sim, xcol="time", ycol="audit_projection_delta_throughput_kw",
         title="Actuation audit: |throughput_after - throughput_raw| (kW)",
-        outfile=os.path.join(plot_dir, "10_audit_projection_delta_throughput.pdf"),
+        outfile=os.path.join(plot_dir,
+                             "10_audit_projection_delta_throughput.pdf"),
         ylabel="kW"
     )
 
