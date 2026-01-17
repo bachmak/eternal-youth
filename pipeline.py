@@ -21,7 +21,7 @@ class Config:
     HORIZON_SAMPLES = 288
 
     # Re-solve interval (in steps). We apply an N-step plan block of this length.
-    MPC_INTERVAL_STEPS = 6
+    MPC_INTERVAL_STEPS = 1
 
     CAPACITY = 10.0
     P_CH_MAX = 5.0
