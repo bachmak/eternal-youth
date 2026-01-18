@@ -474,8 +474,8 @@ def analyze_one_preset(preset_id: str, cfg):
     # ============================================================
     save_lineplot_pdf(
         df, xcol="time",
-        y_col_map={"pv": "PV-Generation", "consumption": "Consumption"},
-        title="PV-Generation and Consumption",
+        y_col_map={"pv": "PV Generation", "consumption": "Load"},
+        title="PV Generation and Load",
         outfile=os.path.join(plot_dir, "01_pv_vs_load.pdf"), ylabel="kW",
         date_range=date_range,
     )
@@ -595,12 +595,17 @@ def main():
 
     # Tradeoff plot: delta energy vs health improvement
     plt.figure(figsize=(3.5, 2.5))
-    plt.margins(0.2)
-    plt.scatter(comp["delta_energy_eur"], comp["health_improvement_pct"],
-                s=8, alpha=0.8)
 
-    texts = [plt.text(r["delta_energy_eur"], r["health_improvement_pct"],
-                      r["preset_name"], fontsize=7)
+    # Increase margins to ensure labels have room on the left
+    plt.margins(x=0.25, y=0.2)
+
+    # Plot using the percentage delta
+    plt.scatter(comp["delta_energy_pct"], comp["health_improvement_pct"],
+                s=12, alpha=0.8, label='Penalty Presets')
+
+    # Create text objects for adjust_text with right-alignment
+    texts = [plt.text(r["delta_energy_pct"], r["health_improvement_pct"],
+                      r["preset_name"], fontsize=7, ha='right')
              for _, r in comp.iterrows()]
 
     adjust_text(
@@ -618,8 +623,12 @@ def main():
 
     plt.grid(True, linestyle='--', linewidth=0.5, color='lightgray', alpha=0.7)
     plt.gca().set_axisbelow(True)
-    plt.xlabel(r"$\Delta$ Energy Cost [€]")
+
+    # Standard LaTeX labels for IEEE
+    plt.xlabel(r"$\Delta$ Energy Cost [\%]")
     plt.ylabel(r"Health Improvement [\%]")
+    plt.title("Optimization Tradeoff")
+
     plt.tight_layout()
 
     plt.savefig("out/penalty_tradeoff.pdf", format='pdf')
