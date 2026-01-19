@@ -427,9 +427,9 @@ def run_one_preset(df_raw: pd.DataFrame, preset_id: str):
     print(f"Saved raw results to: {outfile}")
 
 
-# ============================================================
+# =============================================================
 # Main Wrapper
-# ============================================================
+# =============================================================
 def main():
     # Data Load
     df_raw = get_table("out/df.csv", "data/days-range")
